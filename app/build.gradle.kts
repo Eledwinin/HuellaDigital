@@ -1,6 +1,7 @@
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.compose)
+    id("com.google.gms.google-services")
 }
 
 android {
@@ -55,4 +56,16 @@ dependencies {
     androidTestImplementation(libs.androidx.compose.ui.test.junit4)
     debugImplementation(libs.androidx.compose.ui.tooling)
     debugImplementation(libs.androidx.compose.ui.test.manifest)
+
+    //este gestiona las versiones de Firebase automáticamente
+    implementation(platform("com.google.firebase:firebase-bom:33.1.0"))
+
+    // librería oficial de Cloud Firestore optimizada para Kotlin
+    implementation("com.google.firebase:firebase-firestore")
+
+    // puente de integración entre las Corrutinas de Kotlin
+    // y los servicios de Google (Play Services / Firebase Tasks).
+    //Permite convertir las tareas asíncronas tradicionales de Firebase (que usan listeners/callbacks)
+    // en funciones suspendidas limpias usando .await()
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-play-services:1.8.0")
 }
