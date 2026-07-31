@@ -47,7 +47,7 @@ class MainActivity : ComponentActivity() {
                 modifier = Modifier.fillMaxSize(),
                 contentAlignment = Alignment.Center
             ) {
-                Text(text = "¡Huella Digital lista para recibir datos!")
+                Text(text = "huella Digital lista para recibir datos!")
             }
         }
     }
