@@ -117,15 +117,46 @@ fun RegistroScreen(
                     )
 
                     Text(
-                        text = "Registro de personal para recepción de clínica",
+                        text = "Registro de usuario",
                         color = TextSecondary,
                         fontSize = 12.sp,
                         modifier = Modifier.padding(top = 4.dp, bottom = 20.dp)
                     )
+                    Text(
+                        text = "NOMBRE COMPLETO",
+                        color = CyanPrimary,
+                        fontSize = 10.sp,
+                        fontWeight = FontWeight.Bold,
+                        letterSpacing = 0.8.sp,
+                        modifier = Modifier.padding(bottom = 6.dp)
+                    )
+
+                    OutlinedTextField(
+                        value = viewModel.nombre,
+                        onValueChange = { viewModel.onNombreChange(it) },
+                        modifier = Modifier.fillMaxWidth(),
+                        placeholder = { Text("Ej. Carlos Mendoza", color = TextSecondary.copy(alpha = 0.5f)) },
+                        singleLine = true,
+                        shape = RoundedCornerShape(12.dp),
+                        colors = OutlinedTextFieldDefaults.colors(
+                            focusedContainerColor = InputBackground,
+                            unfocusedContainerColor = InputBackground,
+                            focusedBorderColor = CyanPrimary,
+                            unfocusedBorderColor = Color.Transparent,
+                            focusedTextColor = TextWhite,
+                            unfocusedTextColor = TextWhite
+                        ),
+                        keyboardOptions = KeyboardOptions(
+                            keyboardType = KeyboardType.Text,
+                            imeAction = ImeAction.Next
+                        )
+                    )
+
+                    Spacer(modifier = Modifier.height(16.dp))
 
                     // Campo: CORREO INSTITUCIONAL
                     Text(
-                        text = "CORREO INSTITUCIONAL",
+                        text = "CORREO ELECTRÓNICO",
                         color = CyanPrimary,
                         fontSize = 10.sp,
                         fontWeight = FontWeight.Bold,

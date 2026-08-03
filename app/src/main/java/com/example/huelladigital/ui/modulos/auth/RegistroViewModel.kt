@@ -19,6 +19,7 @@ class RegistroViewModel(
     var clave by mutableStateOf("")
         private set
 
+
     var confirmarClave by mutableStateOf("")
         private set
 
@@ -27,6 +28,12 @@ class RegistroViewModel(
 
     var mensajeError by mutableStateOf<String?>(null)
         private set
+    var nombre by mutableStateOf("")
+        private set
+
+    fun onNombreChange(nuevoNombre: String) {
+        nombre = nuevoNombre
+        mensajeError = null}
 
     fun cambiarCorreo(nuevoCorreo: String) {
         correo = nuevoCorreo
@@ -44,10 +51,12 @@ class RegistroViewModel(
     }
 
     fun registrarUsuario(onExito: () -> Unit) {
+
+        val nombreLimpio = nombre.trim()
         val correoLimpio = correo.trim()
 
-        if (correoLimpio.isBlank() || clave.isBlank() || confirmarClave.isBlank()) {
-            mensajeError = "Todos los campos son obligatorios"
+        if (nombreLimpio.isBlank() || correoLimpio.isBlank() || clave.isBlank()) {
+            mensajeError = "Por favor, completa todos los campos"
             return
         }
 
@@ -70,7 +79,7 @@ class RegistroViewModel(
             isloading = true
             mensajeError = null
 
-            val resultado = authRepository.registrarConEmail(correoLimpio, clave)
+            val resultado = authRepository.registrarConEmail(nombreLimpio, correoLimpio, clave)
 
             isloading = false
 
