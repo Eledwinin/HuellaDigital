@@ -68,4 +68,15 @@ dependencies {
     //Permite convertir las tareas asíncronas tradicionales de Firebase (que usan listeners/callbacks)
     // en funciones suspendidas limpias usando .await()
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-play-services:1.8.0")
+
+    //------------------------------------------------------------------------------------------
+    //aqui estan para el login con google
+
+    // Firebase Auth (Gestión de usuarios)
+    implementation("com.google.firebase:firebase-auth")
+
+    // Credential Manager para inicio de sesión con Google
+    implementation("androidx.credentials:credentials:1.3.0")
+    implementation("androidx.credentials:credentials-play-services-auth:1.3.0")
+    implementation("com.google.android.libraries.identity.googleid:googleid:1.1.1")
 }
