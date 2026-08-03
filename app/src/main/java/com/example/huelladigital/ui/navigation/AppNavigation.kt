@@ -12,6 +12,7 @@ import androidx.navigation.compose.rememberNavController
 import com.example.huelladigital.ui.modulos.auth.ForgotPasswordScreen
 import com.example.huelladigital.ui.modulos.auth.LoginScreen
 import com.example.huelladigital.ui.modulos.auth.RegistroScreen
+import com.example.huelladigital.ui.modulos.expediente.CrearExpedienteScreen
 
 @Composable
 fun AppNavigation() {
@@ -69,6 +70,16 @@ fun AppNavigation() {
             ) {
                 Text("¡Bienvenido al Panel de Recepción!")
             }
+        }
+
+        // 5. Ruta para crear un nuevo expediente
+        composable(Rutas.CrearExpediente.ruta) {
+            CrearExpedienteScreen(
+                onVolver = {
+
+                    navController.popBackStack()
+                }
+            )
         }
     }
 }

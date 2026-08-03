@@ -5,4 +5,6 @@ sealed class Rutas(val ruta: String) {
     object Registro : Rutas("registro")
     object OlvideClave : Rutas("olvide_clave")
     object Home : Rutas("home")
+
+    object CrearExpediente : Rutas ( "crear_expediente")
 }
