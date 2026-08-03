@@ -32,7 +32,7 @@ class AuthRepository {
     }
 
     // iniciar sesión / registro con Google
-    suspend fun autenticarConGoogle(idToken: String): Result<FirebaseUser?> {
+    suspend fun loginConGoogle(idToken: String): Result<FirebaseUser?> {
         return try {
             val credencial = GoogleAuthProvider.getCredential(idToken, null)
             val resultado = auth.signInWithCredential(credencial).await()

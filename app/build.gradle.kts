@@ -56,6 +56,10 @@ dependencies {
     androidTestImplementation(libs.androidx.compose.ui.test.junit4)
     debugImplementation(libs.androidx.compose.ui.tooling)
     debugImplementation(libs.androidx.compose.ui.test.manifest)
+    implementation("androidx.compose.material:material-icons-extended")
+    implementation("androidx.lifecycle:lifecycle-viewmodel-compose:2.8.7")
+    // Navegación con Jetpack Compose
+    implementation("androidx.navigation:navigation-compose:2.8.5")
 
     //este gestiona las versiones de Firebase automáticamente
     implementation(platform("com.google.firebase:firebase-bom:33.1.0"))

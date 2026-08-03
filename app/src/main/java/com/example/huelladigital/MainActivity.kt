@@ -13,6 +13,7 @@ import androidx.lifecycle.lifecycleScope
 import com.example.huelladigital.data.model.Especie
 import com.example.huelladigital.data.model.Mascota
 import com.example.huelladigital.data.repository.VeterinariaRepository
+import com.example.huelladigital.ui.navigation.AppNavigation
 import kotlinx.coroutines.launch
 
 class MainActivity : ComponentActivity() {
@@ -43,12 +44,7 @@ class MainActivity : ComponentActivity() {
 //        }
 
         setContent {
-            Box(
-                modifier = Modifier.fillMaxSize(),
-                contentAlignment = Alignment.Center
-            ) {
-                Text(text = "huella Digital lista para recibir datos!")
-            }
+            AppNavigation()
         }
     }
 }
