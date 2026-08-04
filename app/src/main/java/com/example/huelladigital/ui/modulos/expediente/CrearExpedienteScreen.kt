@@ -1,5 +1,6 @@
 package com.example.huelladigital.ui.modulos.expediente
 
+import android.widget.Toast
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -15,12 +16,14 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.example.huelladigital.ui.messages.MensajesApp
 // Importamos tus colores centralizados desde ui.theme
 import com.example.huelladigital.ui.theme.*
 
@@ -30,6 +33,7 @@ fun CrearExpedienteScreen(
     onVolver: () -> Unit,
     viewModel: ExpedienteViewModel = viewModel()
 ) {
+    val context = LocalContext.current
     val scrollState = rememberScrollState()
 
     Scaffold(
@@ -140,8 +144,11 @@ fun CrearExpedienteScreen(
                         etiqueta = "TELÉFONO DE CONTACTO *",
                         valor = viewModel.telefonoDuenio,
                         placeholder = "7890-4321",
-                        tipoTeclado = KeyboardType.Phone,
-                        onValueChange = { viewModel.onTelefonoChange(it) }
+                        tipoTeclado = KeyboardType.NumberPassword, // Evita símbolos en el teclado
+                        onValueChange = { textoNuevo ->
+                            val telefonoFormateado = telefonoCorrect(textoNuevo)
+                            viewModel.onTelefonoChange(telefonoFormateado)
+                        }
                     )
 
                     // info adicional
@@ -169,7 +176,16 @@ fun CrearExpedienteScreen(
                     // Boton para guardar el expediente
                     Button(
                         onClick = {
-                            viewModel.guardarExpediente(onExito = onVolver)
+                            viewModel.guardarExpediente(
+                                onExito = {
+                                    Toast.makeText(context, MensajesApp.EXPEDIENTE_GUARDADO_EXITO, Toast.LENGTH_LONG).show()
+                                    onVolver()
+                                },
+                                onError = {
+                                    Toast.makeText(context, MensajesApp.EXPEDIENTE_GUARDADO_ERROR, Toast.LENGTH_LONG).show()
+
+                                }
+                            )
                         },
                         modifier = Modifier
                             .fillMaxWidth()
@@ -276,4 +292,8 @@ private fun CampoTextoExpediente(
             )
         )
     }
+}
+private fun telefonoCorrect(input: String): String {
+
+    return input.filter { it.isDigit() }.take(8)
 }

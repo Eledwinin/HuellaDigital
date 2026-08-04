@@ -164,6 +164,32 @@ fun DetalleExpedienteScreen(
                             fontSize = 14.sp
                         )
                     }
+                    Spacer(modifier = Modifier.height(8.dp))
+                    val textoNotas = mascota.notasAdicionales.ifBlank { "Sin notas registradas." }
+                    Spacer(modifier = Modifier.height(14.dp))
+
+                    Surface(
+                        modifier = Modifier.fillMaxWidth(),
+                        shape = RoundedCornerShape(10.dp),
+                        color = InputBackground
+                    ) {
+                        Column(modifier = Modifier.padding(12.dp)) {
+                            Text(
+                                text = "NOTAS ADICIONALES:",
+                                color = CyanPrimary,
+                                fontSize = 10.sp,
+                                fontWeight = FontWeight.Bold,
+                                letterSpacing = 0.8.sp
+                            )
+                            Spacer(modifier = Modifier.height(4.dp))
+                            Text(
+                                text = textoNotas,
+                                color = TextWhite.copy(alpha = 0.9f),
+                                fontSize = 13.sp,
+                                lineHeight = 18.sp
+                            )
+                        }
+                    }
                 }
             }
 

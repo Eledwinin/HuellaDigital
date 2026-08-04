@@ -50,7 +50,7 @@ class RegistroViewModel(
         mensajeError = null
     }
 
-    fun registrarUsuario(onExito: () -> Unit) {
+    fun registrarUsuario(onExito: () -> Unit, onError: () -> Unit) {
 
         val nombreLimpio = nombre.trim()
         val correoLimpio = correo.trim()
@@ -75,6 +75,11 @@ class RegistroViewModel(
             return
         }
 
+        if (!esContrasenaValida(clave)){
+            mensajeError = "la contraseña debe tener al menos una letra mayúscula, un número y un carácter especial"
+            return
+        }
+
         viewModelScope.launch {
             isloading = true
             mensajeError = null
@@ -87,7 +92,20 @@ class RegistroViewModel(
                 onExito()
             }.onFailure { excepcion ->
                 mensajeError = excepcion.localizedMessage ?: "Error al registrar usuario"
+                onError()
             }
         }
+    }
+
+    /**
+     * valida si la contraseña cumple con los requisitos mínimos de seguridad:
+     * - Mínimo 8 caracteres
+     * - Al menos una letra mayúscula
+     * - Al menos un número
+     * - Al menos un carácter especial
+     */
+    fun esContrasenaValida(contrasena: String): Boolean {
+        val patron = Regex("^(?=.*[A-Z])(?=.*[0-9])(?=.*[@#$%^&+=!._?*\\-]).{8,}$")
+        return patron.matches(contrasena)
     }
 }

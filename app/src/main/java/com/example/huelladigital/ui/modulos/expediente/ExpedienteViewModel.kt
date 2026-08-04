@@ -37,7 +37,7 @@ class ExpedienteViewModel(
     fun onTelefonoChange(nuevoTelefono: String) { telefonoDuenio = nuevoTelefono }
     fun onNotasChange(nuevasNotas: String) { notas = nuevasNotas }
 
-    fun guardarExpediente(onExito : () -> Unit){
+    fun guardarExpediente(onExito : () -> Unit, onError : () -> Unit){
         val nombreLimpio = nombreMascota.trim()
         if (nombreLimpio.isBlank() || raza.isBlank() || nombreDuenio.isBlank() || telefonoDuenio.isBlank()) {
             mensajeError = "Por favor, completa todos los campos"
@@ -63,6 +63,7 @@ class ExpedienteViewModel(
                 limpiarCampos()
                 onExito()
             }.onFailure { e ->
+                onError()
                 mensajeError = e.localizedMessage ?: "Error al guardar el expediente"
             }
         }
@@ -76,4 +77,6 @@ class ExpedienteViewModel(
         notas = ""
         mensajeError = null
     }
+
+
 }

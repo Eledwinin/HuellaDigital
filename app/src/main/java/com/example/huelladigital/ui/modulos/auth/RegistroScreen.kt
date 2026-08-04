@@ -1,6 +1,7 @@
 package com.example.huelladigital.ui.modulos.auth
 
 
+import android.widget.Toast
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
@@ -17,6 +18,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
@@ -25,6 +27,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.example.huelladigital.ui.messages.MensajesApp
 import com.example.huelladigital.ui.theme.*
 
 @Composable
@@ -33,6 +36,7 @@ fun RegistroScreen(
     onNavigateBack: () -> Unit,
     viewModel: RegistroViewModel = viewModel()
 ) {
+    val context = LocalContext.current
     Box(
         modifier = Modifier
             .fillMaxSize()
@@ -258,7 +262,17 @@ fun RegistroScreen(
                     Spacer(modifier = Modifier.height(20.dp))
 
                     Button(
-                        onClick = { viewModel.registrarUsuario(onRegistroExitoso) },
+                        onClick = {
+                            viewModel.registrarUsuario(
+                                onExito = {
+                                    Toast.makeText(context, MensajesApp.CUENTA_CREADA_EXITO, Toast.LENGTH_SHORT).show()
+                                    onRegistroExitoso() // Navega al Login o Pantalla Principal
+                                },
+                                onError = {
+                                    Toast.makeText(context, MensajesApp.CUENTA_CREADA_ERROR, Toast.LENGTH_SHORT).show()
+                                }
+                            )
+                        },
                         modifier = Modifier
                             .fillMaxWidth()
                             .height(50.dp),

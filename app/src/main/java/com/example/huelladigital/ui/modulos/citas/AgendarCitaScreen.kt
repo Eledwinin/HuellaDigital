@@ -2,6 +2,7 @@ package com.example.huelladigital.ui.modulos.citas
 
 import android.app.DatePickerDialog
 import android.app.TimePickerDialog
+import android.widget.Toast
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
@@ -23,6 +24,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.huelladigital.data.model.Mascota
+import com.example.huelladigital.ui.messages.MensajesApp
 import com.example.huelladigital.ui.theme.*
 import java.util.Calendar
 import java.util.Locale
@@ -338,7 +340,17 @@ fun AgendarCitaScreen(
 
                     // BOTÓN GUARDAR CITA
                     Button(
-                        onClick = { viewModel.agendarCita(onExito = onVolver) },
+                        onClick = {
+                            viewModel.agendarCita(
+                                onExito = {
+                                    Toast.makeText(context, MensajesApp.CITA_PROGRAMADA_EXITO, Toast.LENGTH_SHORT).show()
+                                    onVolver()
+                                },
+                                onError = {
+                                    Toast.makeText(context, MensajesApp.CITA_PROGRAMADA_ERROR, Toast.LENGTH_SHORT).show()
+                                }
+                            )
+                        },
                         modifier = Modifier
                             .fillMaxWidth()
                             .height(50.dp),

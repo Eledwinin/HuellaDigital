@@ -52,7 +52,7 @@ class CitasViewModel(
     val esBanoPerro: Boolean
         get() = servicioSeleccionado == "Baño" && mascotaSeleccionada?.especie.equals("Perro", ignoreCase = true)
 
-    fun agendarCita(onExito: () -> Unit) {
+    fun agendarCita(onExito: () -> Unit, onError: () -> Unit) {
         val mascota = mascotaSeleccionada
         if (mascota == null) {
             mensajeError = "Debes seleccionar una mascota"
@@ -98,6 +98,7 @@ class CitasViewModel(
                 resultadoGuardar.onSuccess {
                     onExito()
                 }.onFailure { e ->
+                    onError()
                     mensajeError = e.localizedMessage ?: "Error al guardar la cita"
                 }
 
