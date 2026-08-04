@@ -89,7 +89,7 @@ fun AppNavigation() {
             )
         }
 
-        // Nueva Ruta en NavHost:
+        // esto es para ver el detalle del expediente
         composable(Rutas.DetalleExpediente.ruta) {
             mascotaParaCita?.let { mascota ->
                 DetalleExpedienteScreen(
@@ -98,6 +98,10 @@ fun AppNavigation() {
                     onAgendarCita = { m ->
                         mascotaParaCita = m
                         navController.navigate(Rutas.AgendarCita.ruta)
+                    },
+                    onEliminarExitoso = {
+                        mascotaParaCita = null
+                        navController.popBackStack()
                     }
                 )
             }

@@ -75,7 +75,34 @@ class VeterinariaRepository(
         }
     }
 
+    // Elimina el expediente de la mascota Y todas sus citas asociadas en Firestore
+    suspend fun eliminarMascota(idMascota: String): Result<Unit> {
+        return try {
+            // aca busca todas las citas que tenga la pet
+            val citasSnapshot = citasCollection
+                .whereEqualTo("mascotaId", idMascota)
+                .get()
+                .await()
 
+            // batch hace que, se borre todo o no se borre nada en cualquier error
+            val batch = db.batch()
+
+            // Agregamos el borrado del documento de la mascota
+            batch.delete(mascotasCollection.document(idMascota))
+
+            // Agregamos el borrado de cada cita encontrada
+            for (documento in citasSnapshot.documents) {
+                batch.delete(documento.reference)
+            }
+
+            // borra todo
+            batch.commit().await()
+
+            Result.success(Unit)
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
+    }
 
 
 }

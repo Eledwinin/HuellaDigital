@@ -10,6 +10,8 @@ object MensajesApp {
     // expedientes
     const val EXPEDIENTE_GUARDADO_EXITO = "¡Expediente guardado correctamente!"
     const val EXPEDIENTE_GUARDADO_ERROR = "Error al guardar el expediente."
+    const val EXPEDIENTE_ELIMINADO_EXITO = "Expediente eliminado correctamente"
+    const val EXPEDIENTE_ELIMINADO_ERROR = "Error al eliminar el expediente"
 
     // citas
     const val CITA_PROGRAMADA_EXITO = "¡Cita programada con éxito!"
