@@ -8,5 +8,8 @@ sealed class Rutas(val ruta: String) {
 
     object CrearExpediente : Rutas ( "crear_expediente")
     object AgendarCita : Rutas("agendar_cita")
+
     object DetalleExpediente : Rutas("detalle_expediente")
+
+    object AgendaDiaria : Rutas("agenda_diaria")
 }

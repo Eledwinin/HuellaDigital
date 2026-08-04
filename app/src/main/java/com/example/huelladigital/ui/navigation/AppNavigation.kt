@@ -17,6 +17,7 @@ import com.example.huelladigital.data.model.Mascota
 import com.example.huelladigital.ui.modulos.auth.ForgotPasswordScreen
 import com.example.huelladigital.ui.modulos.auth.LoginScreen
 import com.example.huelladigital.ui.modulos.auth.RegistroScreen
+import com.example.huelladigital.ui.modulos.citas.AgendaDiariaScreen
 import com.example.huelladigital.ui.modulos.citas.AgendarCitaScreen
 import com.example.huelladigital.ui.modulos.expediente.CrearExpedienteScreen
 import com.example.huelladigital.ui.modulos.expediente.DetalleExpedienteScreen
@@ -83,7 +84,8 @@ fun AppNavigation() {
                 onVerDetalleExpediente = { mascota ->
                     mascotaParaCita = mascota
                     navController.navigate(Rutas.DetalleExpediente.ruta) // <--- NAVEGA AL EXPEDIENTE
-                }
+                },
+                onIrAAgendaDiaria = { navController.navigate(Rutas.AgendaDiaria.ruta) }
             )
         }
 
@@ -119,6 +121,13 @@ fun AppNavigation() {
 
                     navController.popBackStack()
                 }
+            )
+        }
+
+        //ruta para ver la agenda de citas
+        composable(Rutas.AgendaDiaria.ruta) {
+            AgendaDiariaScreen(
+                onVolver = { navController.popBackStack() }
             )
         }
     }

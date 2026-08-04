@@ -32,6 +32,7 @@ fun HomeScreen(
     onIrACrearExpediente: () -> Unit,
     onIrAAgendarCita: (Mascota) -> Unit,
     onVerDetalleExpediente: (Mascota) -> Unit,
+    onIrAAgendaDiaria: () -> Unit, // <-- 1. Callback de navegación a la agenda diaria
     viewModel: HomeViewModel = viewModel()
 ) {
     // Recargar la lista cada vez que volvemos a la pantalla
@@ -63,7 +64,7 @@ fun HomeScreen(
                 .padding(innerPadding)
                 .padding(horizontal = 20.dp, vertical = 16.dp)
         ) {
-            //cabeza
+            // ENCABEZADO PERSONALIZADO
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceBetween,
@@ -71,7 +72,7 @@ fun HomeScreen(
             ) {
                 Column {
                     Text(
-                        text = "HUELLAS DIGITALES",
+                        text = "HUELLA DIGITAL",
                         color = TextWhite,
                         fontSize = 20.sp,
                         fontWeight = FontWeight.Bold
@@ -84,22 +85,34 @@ fun HomeScreen(
                     )
                 }
 
-                // Avatar / Icono perfil
-                Box(
-                    modifier = Modifier
-                        .size(45.dp)
-                        .clip(CircleShape)
-                        .background(DarkCardBg)
-                        .border(1.5.dp, CyanPrimary, CircleShape),
-                    contentAlignment = Alignment.Center
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(10.dp)
                 ) {
-                    Text(text = "🧑‍⚕️", fontSize = 22.sp)
+                    // BOTÓN DE AGENDA DIARIA
+                    Box(
+                        modifier = Modifier
+                            .size(45.dp)
+                            .clip(CircleShape)
+                            .background(DarkCardBg)
+                            .border(1.5.dp, CyanPrimary, CircleShape)
+                            .clickable { onIrAAgendaDiaria() },
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.DateRange,
+                            contentDescription = "Ver Agenda Diaria",
+                            tint = CyanPrimary,
+                            modifier = Modifier.size(22.dp)
+                        )
+                    }
+
                 }
             }
 
             Spacer(modifier = Modifier.height(20.dp))
 
-            // espacio para escribir la busqeuda
+            // Espacio para escribir la búsqueda
             OutlinedTextField(
                 value = viewModel.busquedaQuery,
                 onValueChange = { viewModel.onBusquedaChange(it) },
@@ -132,7 +145,7 @@ fun HomeScreen(
 
             Spacer(modifier = Modifier.height(20.dp))
 
-            //filtrar por pacientes
+            // Filtrar por pacientes
             Text(
                 text = "FILTRAR PACIENTES:",
                 color = TextWhite,
@@ -143,7 +156,7 @@ fun HomeScreen(
 
             Spacer(modifier = Modifier.height(10.dp))
 
-            // eleccion de especie
+            // Elección de especie
             LazyRow(
                 horizontalArrangement = Arrangement.spacedBy(8.dp)
             ) {
@@ -164,7 +177,7 @@ fun HomeScreen(
 
             Spacer(modifier = Modifier.height(20.dp))
 
-            // lista de tarjetas
+            // Lista de tarjetas
             if (viewModel.isloading) {
                 Box(
                     modifier = Modifier
@@ -205,7 +218,7 @@ fun HomeScreen(
     }
 }
 
-// esto es para seleccionar la mascota por especie
+// Para seleccionar la mascota por especie
 @Composable
 private fun FiltroChip(
     titulo: String,
@@ -233,19 +246,19 @@ private fun FiltroChip(
     }
 }
 
-// funn para la Tarjeta de la Mascota (enseña emoji, Nombre, Expediente, Dueño)
+// Tarjeta de la Mascota
 @Composable
-private fun TarjetaMascota(mascota: Mascota,
-                           onAgendarCita: (Mascota) -> Unit,
-                           onVerDetalle: () -> Unit) {
-    // Determinar emoji e imagen según especie
+private fun TarjetaMascota(
+    mascota: Mascota,
+    onAgendarCita: (Mascota) -> Unit,
+    onVerDetalle: () -> Unit
+) {
     val (emoji, fondoIcono, colorBordeTarjeta) = when (mascota.especie) {
         "Gato" -> Triple("🐱", Color(0xFFE91E63), Color(0xFFE91E63))
         "Conejo" -> Triple("🐰", Color(0xFFFF9800), Color(0xFFFF9800))
-        else -> Triple("🐶", CyanPrimary, CyanPrimary) // Perro por defecto
+        else -> Triple("🐶", CyanPrimary, CyanPrimary)
     }
 
-    // ID formateado tipo EXP-001 abreviado
     val idFormateado = if (mascota.id.length > 7) "EXP-" + mascota.id.takeLast(3).uppercase() else "EXP-001"
 
     Card(
@@ -262,7 +275,6 @@ private fun TarjetaMascota(mascota: Mascota,
                 .fillMaxWidth(),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            // Icono Especie
             Box(
                 modifier = Modifier
                     .size(60.dp)
@@ -275,7 +287,6 @@ private fun TarjetaMascota(mascota: Mascota,
 
             Spacer(modifier = Modifier.width(14.dp))
 
-            // information de la pet
             Column(modifier = Modifier.weight(1f)) {
                 Row(
                     modifier = Modifier.fillMaxWidth(),
@@ -289,7 +300,6 @@ private fun TarjetaMascota(mascota: Mascota,
                         fontWeight = FontWeight.Bold
                     )
 
-                    // Badge Expediente
                     Box(
                         modifier = Modifier
                             .background(Color.Black.copy(alpha = 0.4f), RoundedCornerShape(8.dp))
@@ -324,7 +334,6 @@ private fun TarjetaMascota(mascota: Mascota,
 
             Spacer(modifier = Modifier.width(8.dp))
 
-            //boton de calendario
             Box(
                 modifier = Modifier
                     .size(36.dp)
