@@ -51,6 +51,30 @@ class VeterinariaRepository(
         }
     }
 
+    // Cuenta directamente en Firestore cuántas citas hay en la misma fecha y hora exacta
+    suspend fun contarCitasEnHorario(fecha: String, hora: String): Result<Int> {
+        return try {
+            val snapshot = db.collection("citas")
+                .whereEqualTo("fecha", fecha.trim())
+                .whereEqualTo("hora", hora.trim())
+                .get()
+                .await()
+            Result.success(snapshot.size())
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
+    }
+
+    suspend fun obtenerCitas(): Result<List<Cita>> {
+        return try {
+            val snapshot = db.collection("citas").get().await()
+            val listaCitas = snapshot.toObjects(Cita::class.java)
+            Result.success(listaCitas)
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
+    }
+
 
 
 

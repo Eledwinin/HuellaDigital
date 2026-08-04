@@ -232,7 +232,7 @@ fun LoginScreen(
 
                     // boton para acceder
                     Button(
-                        onClick = { viewModel.loginConEmail(onLoginSuccess) },
+                        onClick = { viewModel.loginConEmail(onExito = { onLoginSuccess() }) },
                         modifier = Modifier
                             .fillMaxWidth()
                             .height(50.dp),
@@ -286,9 +286,7 @@ fun LoginScreen(
 
                     // BOTÓN SECUNDARIO: GOOGLE
                     OutlinedButton(
-                        onClick = {
-                            viewModel.loginConGoogle(context = context, onExito = onLoginSuccess)
-                        },
+                        onClick = { viewModel.loginConGoogle(context = context, onExito = { onLoginSuccess() })},
                         modifier = Modifier
                             .fillMaxWidth()
                             .height(48.dp),

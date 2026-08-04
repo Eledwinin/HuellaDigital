@@ -4,19 +4,29 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import com.example.huelladigital.data.model.Mascota
 import com.example.huelladigital.ui.modulos.auth.ForgotPasswordScreen
 import com.example.huelladigital.ui.modulos.auth.LoginScreen
 import com.example.huelladigital.ui.modulos.auth.RegistroScreen
+import com.example.huelladigital.ui.modulos.citas.AgendarCitaScreen
 import com.example.huelladigital.ui.modulos.expediente.CrearExpedienteScreen
+import com.example.huelladigital.ui.modulos.expediente.DetalleExpedienteScreen
+import com.example.huelladigital.ui.modulos.home.HomeScreen
 
 @Composable
 fun AppNavigation() {
     val navController = rememberNavController()
+
+    var mascotaParaCita by remember { mutableStateOf<Mascota?>(null) }
 
     NavHost(
         navController = navController,
@@ -64,11 +74,41 @@ fun AppNavigation() {
 
         // 4. Home
         composable(Rutas.Home.ruta) {
-            Box(
-                modifier = Modifier.fillMaxSize(),
-                contentAlignment = Alignment.Center
-            ) {
-                Text("¡Bienvenido al Panel de Recepción!")
+            HomeScreen(
+                onIrACrearExpediente = { navController.navigate(Rutas.CrearExpediente.ruta) },
+                onIrAAgendarCita = { mascota ->
+                    mascotaParaCita = mascota
+                    navController.navigate(Rutas.AgendarCita.ruta)
+                },
+                onVerDetalleExpediente = { mascota ->
+                    mascotaParaCita = mascota
+                    navController.navigate(Rutas.DetalleExpediente.ruta) // <--- NAVEGA AL EXPEDIENTE
+                }
+            )
+        }
+
+        // Nueva Ruta en NavHost:
+        composable(Rutas.DetalleExpediente.ruta) {
+            mascotaParaCita?.let { mascota ->
+                DetalleExpedienteScreen(
+                    mascota = mascota,
+                    onVolver = { navController.popBackStack() },
+                    onAgendarCita = { m ->
+                        mascotaParaCita = m
+                        navController.navigate(Rutas.AgendarCita.ruta)
+                    }
+                )
+            }
+        }
+
+        // 6. Agendar Cita
+        composable(Rutas.AgendarCita.ruta) {
+            // Le pasamos la mascota guardada a la pantalla de Citas
+            mascotaParaCita?.let { mascota ->
+                AgendarCitaScreen(
+                    mascota = mascota,
+                    onVolver = { navController.popBackStack() }
+                )
             }
         }
 
