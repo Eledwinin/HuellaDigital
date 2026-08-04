@@ -22,26 +22,7 @@ class MainActivity : ComponentActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-
-//        // --- PRUEBA DE CONEXIÓN A FIREBASE ---
-//        lifecycleScope.launch {
-//            val nuevaMascota = Mascota(
-//                nombre = "Firulais",
-//                especie = Especie.PERRO.nombre,
-//                raza = "Golden Retriever",
-//                nombreDuenio = "Carlos López",
-//                telefonoDuenio = "7777-8888",
-//                notasAdicionales = "Vacunas al día"
-//            )
-//
-//            val resultado = repository.guardarMascota(nuevaMascota)
-//
-//            resultado.onSuccess {
-//                Log.d("HUELLA_FIREBASE", "¡ÉXITO! La mascota se guardó correctamente en Firestore.")
-//            }.onFailure { error ->
-//                Log.e("HUELLA_FIREBASE", "ERROR al guardar en Firestore", error)
-//            }
-//        }
+        window.decorView.setBackgroundColor(android.graphics.Color.parseColor("#121212"))
 
         setContent {
             AppNavigation()

@@ -1,5 +1,9 @@
 package com.example.huelladigital.ui.navigation
 
+import androidx.compose.animation.AnimatedContentTransitionScope
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.Text
@@ -31,7 +35,37 @@ fun AppNavigation() {
 
     NavHost(
         navController = navController,
-        startDestination = Rutas.Login.ruta
+        startDestination = Rutas.Login.ruta,
+        // aca se define la animacion al entrar en una pantalla nueva
+        enterTransition = {
+            slideIntoContainer(
+                towards = AnimatedContentTransitionScope.SlideDirection.Left,
+                animationSpec = tween(350)
+            ) + fadeIn(animationSpec = tween(350))
+        },
+
+        // esta es para cuadno se sale de la pantalla
+        exitTransition = {
+            slideOutOfContainer(
+                towards = AnimatedContentTransitionScope.SlideDirection.Left,
+                animationSpec = tween(350)
+            ) + fadeOut(animationSpec = tween(350))
+        },
+
+        // esta es un aanimacio al darle "atras" a una pantalla
+        popEnterTransition = {
+            slideIntoContainer(
+                towards = AnimatedContentTransitionScope.SlideDirection.Right,
+                animationSpec = tween(350)
+            ) + fadeIn(animationSpec = tween(350))
+        },
+
+        popExitTransition = {
+            slideOutOfContainer(
+                towards = AnimatedContentTransitionScope.SlideDirection.Right,
+                animationSpec = tween(350)
+            ) + fadeOut(animationSpec = tween(350))
+        }
     ) {
         // 1. Pantalla de Login
         composable(Rutas.Login.ruta) {

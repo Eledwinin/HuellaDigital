@@ -42,8 +42,14 @@ import com.example.huelladigital.ui.messages.MensajesApp
 import com.example.huelladigital.ui.theme.*
 import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
+import java.time.LocalDate
+import java.time.LocalDateTime
+import java.time.format.DateTimeFormatter
 import java.util.Date
 import java.util.Locale
+
+//private val FORMATO_FECHA_HORA = DateTimeFormatter.ofPattern("d/M/yyyy h:mm a", Locale.US)
+//private val FORMATO_FECHA_SOLO = DateTimeFormatter.ofPattern("d/M/yyyy", Locale.getDefault())
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -339,79 +345,151 @@ fun DetalleExpedienteScreen(
                     )
                 }
             } else {
+                // estas 2 seran para separar las cittas, de pendientes a finalesizadas
+                val citasPendientes = remember(citasMascota) {
+                    citasMascota.filter { obtenerEstadoCita(it.fecha, it.hora) == "PENDIENTE" }
+                }
+                val citasFinalizadas = remember(citasMascota) {
+                    citasMascota.filter { obtenerEstadoCita(it.fecha, it.hora) == "FINALIZADO" }
+                }
+
+                // Estado para controlar el desplegable de citas terminadas
+                var desplegarFinalizadas by remember { mutableStateOf(false) }
+
                 LazyColumn(
                     verticalArrangement = Arrangement.spacedBy(10.dp)
                 ) {
-                    items(citasMascota) { cita ->
-                        val estado = obtenerEstadoCita(cita.fecha)
-                        val esFinalizado = estado == "FINALIZADO"
+                    //seccion de pendientes
+                    if (citasPendientes.isNotEmpty()) {
+                        items(citasPendientes) { cita ->
+                            TarjetaItemCita(cita = cita, estado = "PENDIENTE")
+                        }
+                    } else {
+                        item {
+                            Text(
+                                text = "No hay citas pendientes.",
+                                color = TextThird,
+                                fontSize = 12.sp,
+                                modifier = Modifier.padding(vertical = 4.dp)
+                            )
+                        }
+                    }
 
-                        Card(
-                            modifier = Modifier.fillMaxWidth(),
-                            shape = RoundedCornerShape(12.dp),
-                            colors = CardDefaults.cardColors(containerColor = InputBackground)
-                        ) {
-                            Row(
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .padding(14.dp),
-                                verticalAlignment = Alignment.CenterVertically
+                    //seccion de finalizadas
+                    if (citasFinalizadas.isNotEmpty()) {
+                        item {
+                            Spacer(modifier = Modifier.height(8.dp))
+
+                            // Botón encabezado desplegable
+                            Surface(
+                                onClick = { desplegarFinalizadas = !desplegarFinalizadas },
+                                shape = RoundedCornerShape(8.dp),
+                                color = DarkCardBg,
+                                border = BorderStroke(1.dp, TextSecondary.copy(alpha = 0.2f)),
+                                modifier = Modifier.fillMaxWidth()
                             ) {
-                                Icon(
-                                    imageVector = Icons.Default.CalendarToday,
-                                    contentDescription = null,
-                                    tint = if (esFinalizado) TextThird else CyanPrimary,
-                                    modifier = Modifier.size(24.dp)
-                                )
-
-                                Spacer(modifier = Modifier.width(12.dp))
-
-                                // Información central de la cita
-                                Column(modifier = Modifier.weight(1f)) {
-                                    Text(
-                                        text = cita.servicio,
-                                        color = TextWhite,
-                                        fontWeight = FontWeight.Bold,
-                                        fontSize = 14.sp
-                                    )
-                                    if (cita.tipoBano.isNotBlank()) {
-                                        Text(
-                                            text = "Tipo: ${cita.tipoBano}",
-                                            color = AccentPink,
-                                            fontSize = 12.sp,
-                                            fontWeight = FontWeight.SemiBold
-                                        )
-                                    }
-                                    Text(
-                                        text = "${cita.fecha} • ${cita.hora}",
-                                        color = TextThird,
-                                        fontSize = 12.sp
-                                    )
-                                }
-
-                                Spacer(modifier = Modifier.width(8.dp))
-
-                                // esto muestra el estado de la cita
-                                Surface(
-                                    shape = RoundedCornerShape(6.dp),
-                                    color = if (esFinalizado) Color(0xFF1E3A1E) else Color(0xFF3A301E),
-                                    border = BorderStroke(
-                                        width = 1.dp,
-                                        color = if (esFinalizado) Color(0xFF4CAF50) else Color(0xFFFFB74D)
-                                    )
+                                Row(
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .padding(horizontal = 12.dp, vertical = 10.dp),
+                                    horizontalArrangement = Arrangement.SpaceBetween,
+                                    verticalAlignment = Alignment.CenterVertically
                                 ) {
                                     Text(
-                                        text = estado,
-                                        color = if (esFinalizado) Color(0xFF81C784) else Color(0xFFFFD54F),
-                                        fontSize = 10.sp,
+                                        text = "TERMINADAS (${citasFinalizadas.size})",
+                                        color = TextThird,
+                                        fontSize = 11.sp,
                                         fontWeight = FontWeight.Bold,
-                                        modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp)
+                                        letterSpacing = 0.8.sp
+                                    )
+                                    Text(
+                                        text = if (desplegarFinalizadas) "Ocultar ▲" else "Ver ▼",
+                                        color = CyanPrimary,
+                                        fontSize = 11.sp,
+                                        fontWeight = FontWeight.SemiBold
                                     )
                                 }
                             }
                         }
+                        // Lista desplegable de terminadas
+                        if (desplegarFinalizadas) {
+                            items(citasFinalizadas) { cita ->
+                                TarjetaItemCita(cita = cita, estado = "FINALIZADO")
+                            }
+                        }
                     }
                 }
+            }
+        }
+    }
+}
+
+//dibula la tarjeta de la cita
+@Composable
+private fun TarjetaItemCita(cita: Cita, estado: String) {
+    val esFinalizado = estado == "FINALIZADO"
+
+    Card(
+        modifier = Modifier.fillMaxWidth(),
+        shape = RoundedCornerShape(12.dp),
+        colors = CardDefaults.cardColors(containerColor = InputBackground)
+    ) {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(14.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Icon(
+                imageVector = Icons.Default.CalendarToday,
+                contentDescription = null,
+                tint = if (esFinalizado) TextThird else CyanPrimary,
+                modifier = Modifier.size(24.dp)
+            )
+
+            Spacer(modifier = Modifier.width(12.dp))
+
+            // Información central de la cita
+            Column(modifier = Modifier.weight(1f)) {
+                Text(
+                    text = cita.servicio,
+                    color = if (esFinalizado) TextThird else TextWhite,
+                    fontWeight = FontWeight.Bold,
+                    fontSize = 14.sp
+                )
+                if (cita.tipoBano.isNotBlank()) {
+                    Text(
+                        text = "Tipo: ${cita.tipoBano}",
+                        color = if (esFinalizado) TextThird else AccentPink,
+                        fontSize = 12.sp,
+                        fontWeight = FontWeight.SemiBold
+                    )
+                }
+                Text(
+                    text = "${cita.fecha} • ${cita.hora}",
+                    color = TextThird,
+                    fontSize = 12.sp
+                )
+            }
+
+            Spacer(modifier = Modifier.width(8.dp))
+
+            // esto muestra el estado de la cita
+            Surface(
+                shape = RoundedCornerShape(6.dp),
+                color = if (esFinalizado) Color(0xFF1E3A1E) else Color(0xFF3A301E),
+                border = BorderStroke(
+                    width = 1.dp,
+                    color = if (esFinalizado) Color(0xFF4CAF50) else Color(0xFFFFB74D)
+                )
+            ) {
+                Text(
+                    text = estado,
+                    color = if (esFinalizado) Color(0xFF81C784) else Color(0xFFFFD54F),
+                    fontSize = 10.sp,
+                    fontWeight = FontWeight.Bold,
+                    modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp)
+                )
             }
         }
     }
@@ -676,29 +754,37 @@ private fun CampoTextoModal(
     }
 }
 
-fun obtenerEstadoCita(fechaCitaTexto: String): String {
-    return try {
-        val sdf = SimpleDateFormat("dd/MM/yyyy", Locale.getDefault())
-        val fechaCita = sdf.parse(fechaCitaTexto)
+// determina si la cita ya pasó considerando la FECHA y la HORA exacta
 
-        // Obtenemos la fecha de hoy a medianoche (sin tomar en cuenta la hora exacta)
-        val hoyLimpio = sdf.parse(sdf.format(Date()))
+fun obtenerEstadoCita(fechaTexto: String, horaTexto: String = ""): String {
+    val fechaLimpia = fechaTexto.trim()
+    val horaLimpia = horaTexto.trim()
 
-        if (fechaCita != null && hoyLimpio != null) {
-            if (fechaCita.before(hoyLimpio)) "FINALIZADO" else "PENDIENTE"
+    return runCatching {
+        if (horaLimpia.isNotBlank()) {
+            val sdfHora = SimpleDateFormat("d/M/yyyy h:mm a", Locale.US)
+            val fechaHoraCita = sdfHora.parse("$fechaLimpia $horaLimpia") ?: return "PENDIENTE"
+            if (fechaHoraCita.before(Date())) "FINALIZADO" else "PENDIENTE"
         } else {
-            "PENDIENTE"
+            val sdfFecha = SimpleDateFormat("d/M/yyyy", Locale.getDefault())
+            val fechaCita = sdfFecha.parse(fechaLimpia) ?: return "PENDIENTE"
+
+            val hoyInicioDia = java.util.Calendar.getInstance().apply {
+                set(java.util.Calendar.HOUR_OF_DAY, 0)
+                set(java.util.Calendar.MINUTE, 0)
+                set(java.util.Calendar.SECOND, 0)
+                set(java.util.Calendar.MILLISECOND, 0)
+            }.time
+
+            if (fechaCita.before(hoyInicioDia)) "FINALIZADO" else "PENDIENTE"
         }
-    } catch (e: Exception) {
-        "PENDIENTE"
-    }
+    }.getOrDefault("PENDIENTE")
 }
 
-private fun convertirTextoADate(fechaTexto: String): Date {
-    return try {
-        val sdf = SimpleDateFormat("dd/MM/yyyy", Locale.getDefault())
-        sdf.parse(fechaTexto) ?: Date(0)
-    } catch (e: Exception) {
-        Date(0)
-    }
+// Convierte el texto de fecha a objeto Date para ordenar las listas
+private fun convertirTextoADate(fechaTexto: String): Long {
+    return runCatching {
+        val sdf = SimpleDateFormat("d/M/yyyy", Locale.getDefault())
+        sdf.parse(fechaTexto.trim())?.time ?: 0L
+    }.getOrDefault(0L)
 }
