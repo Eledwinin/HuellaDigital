@@ -6,9 +6,9 @@
 
 ## Enlaces del Proyecto
 
-* 🎨 **Prototipo Interactivo en Figma:** (https://www.figma.com/design/Pusy4pmku2opw3ETqiaiQL/HUELLAS?node-id=0-1&t=LDCpeC0qyOIiIpM8-1)*
-* 🌐 **Sitio Web para descargar App** 
-* 📦 **Repositorio GitHub:** (https://github.com/eledwinin/HuellaDigital)
+* **Prototipo Interactivo en Figma:** (https://www.figma.com/design/Pusy4pmku2opw3ETqiaiQL/HUELLAS?node-id=0-1&t=LDCpeC0qyOIiIpM8-1)*
+* **Sitio Web para descargar App** 
+* **Repositorio GitHub:** (https://github.com/eledwinin/HuellaDigital)
 
 ---
 
@@ -23,7 +23,7 @@
 
 ----
 
-## 📖 Manual de Usuario
+## Manual de Usuario
 
 ### 1. Inicio de Sesión
 * Al abrir la aplicación, ingrese con las credenciales asignadas para el personal de recepción de la clínica.
