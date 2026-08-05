@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Huella Digital - Google Play Store</title>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { font-family: 'Roboto', 'Segoe UI', Arial, sans-serif; background-color: #121212; color: #ffffff; padding: 20px; }
+        
+        .play-card { max-width: 800px; margin: 0 auto; background: #1E1E1E; padding: 24px; border-radius: 20px; border: 1.5px solid #00E5FF; }
+        
+        /* ENCABEZADO */
+        .header { display: flex; gap: 20px; align-items: center; margin-bottom: 20px; }
+        .app-icon { width: 90px; height: 90px; background: #00E5FF; border-radius: 22px; display: flex; align-items: center; justify-content: center; font-size: 45px; }
+        .app-title h1 { font-size: 26px; color: #FFFFFF; font-weight: 700; }
+        .app-title p { color: #00E5FF; font-size: 14px; font-weight: 600; margin-top: 4px; }
+        
+        /* BOTONES Y LINKS DE DESCARGA */
+        .download-actions { display: flex; gap: 12px; margin-top: 14px; flex-wrap: wrap; }
+        .btn-download { background: #00E5FF; color: #000000; text-decoration: none; padding: 12px 24px; border-radius: 24px; font-weight: bold; font-size: 14px; display: inline-flex; align-items: center; gap: 8px; transition: transform 0.2s; }
+        .btn-download:hover { transform: scale(1.03); background: #00b8cc; }
+        .btn-github { background: #2A2A2A; color: #FFFFFF; text-decoration: none; padding: 12px 20px; border-radius: 24px; font-size: 14px; border: 1px solid #444; }
+        
+        /* ESTADÍSTICAS TIENDA */
+        .stats-bar { display: flex; justify-content: space-around; border-top: 1px solid #333; border-bottom: 1px solid #333; padding: 12px 0; margin: 20px 0; text-align: center; font-size: 13px; color: #AAA; }
+        .stats-bar strong { color: #FFF; font-size: 15px; display: block; margin-bottom: 2px; }
+
+        /* GALERÍA CAPTURAS */
+        .section-title { color: #00E5FF; font-size: 12px; font-weight: 700; letter-spacing: 1px; margin-bottom: 12px; }
+        .screenshots { display: flex; gap: 12px; overflow-x: auto; padding-bottom: 10px; margin-bottom: 20px; }
+        .mock-screen { min-width: 150px; height: 280px; background: #2A2A2A; border-radius: 12px; border: 1px solid #333; display: flex; align-items: center; justify-content: center; font-size: 12px; color: #888; }
+
+        /* DESCRIPCIÓN */
+        .description { font-size: 14px; line-height: 1.6; color: #DDD; }
+    </style>
+</head>
+<body>
+
+    <div class="play-card">
+        <!-- ENCABEZADO -->
+        <div class="header">
+            <div class="app-icon">🐾</div>
+            <div class="app-title">
+                <h1>Huella Digital</h1>
+                <p>Huella Digital Studio • Recepción Veterinaria</p>
+                
+                <!-- SECCIÓN DE DESCARGA -->
+                <div class="download-actions">
+                    <!-- Puedes poner la ruta a tu archivo .apk o enlace directo -->
+                    <a href="https://github.com/tu-usuario/tu-repo/releases/download/v1.0/app-release.apk" class="btn-download" download>
+                        <span>⬇️ Descargar APK (v1.0)</span>
+                    </a>
+                    <a href="https://github.com/tu-usuario/tu-repo" class="btn-github" target="_blank">
+                        GitHub Repo
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- BARRA DE ESTADÍSTICAS ESTILO PLAY STORE -->
+        <div class="stats-bar">
+            <div><strong>4.9 ★</strong>128 Reseñas</div>
+            <div><strong>10 MB</strong>Tamaño</div>
+            <div><strong>1 K+</strong>Descargas</div>
+            <div><strong>3+</strong>Apto público</div>
+        </div>
+
+        <!-- MOCKUPS / CAPTURAS DE PANTALLA -->
+        <div class="section-title">CAPTURAS DE PANTALLA</div>
+        <div class="screenshots">
+            <div class="mock-screen">📱 Expediente Clínico</div>
+            <div class="mock-screen">📅 Historial Citas</div>
+            <div class="mock-screen">⏰ Agenda Diaria</div>
+        </div>
+
+        <!-- DESCRIPCIÓN COMERCIAL DE LA APP -->
+        <div class="section-title">ACERCA DE ESTA APLICACIÓN</div>
+        <p class="description">
+            <strong>Huella Digital</strong> es la solución integral de gestión veterinaria diseñada para recepciones y clínicas. 
+            Permite administrar expedientes médicos de mascotas (perros, gatos, conejos), controlar el historial de atención, datos de contacto del propietario y visualizar en tiempo real los estados de citas pendientes y finalizadas.
+        </p>
+    </div>
+
+</body>
+</html>
