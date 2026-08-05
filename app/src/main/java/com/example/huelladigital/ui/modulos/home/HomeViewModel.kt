@@ -67,8 +67,11 @@ class HomeViewModel(
                 //aca es el filtro por el nombre de la mascota o el dueño
 
                 val cumpleBusqueda = busquedaQuery.isBlank() ||
-                        mascota.nombre.contains(busquedaQuery, ignoreCase = true)
-                        mascota.nombreDuenio.contains(busquedaQuery, ignoreCase = true)
+                        mascota.nombre.contains(busquedaQuery, ignoreCase = true) ||
+                        mascota.nombreDuenio.contains(busquedaQuery, ignoreCase = true) ||
+                        mascota.telefonoDuenio.contains(busquedaQuery, ignoreCase = true) ||
+                        mascota.raza.contains(busquedaQuery, ignoreCase = true) ||
+                        mascota.id.contains(busquedaQuery, ignoreCase = true)
 
                 cumpleEspecie && cumpleBusqueda
 

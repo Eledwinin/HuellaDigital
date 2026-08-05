@@ -130,6 +130,19 @@ fun CrearExpedienteScreen(
                         placeholder = "Ej. Beagle",
                         onValueChange = { viewModel.onRazaChange(it) }
                     )
+                    CampoTextoExpediente(
+                        etiqueta = "EDAD",
+                        valor = viewModel.edad,
+                        placeholder = "Ej. 2 años",
+                        onValueChange = { viewModel.onEdadChange(it) }
+                    )
+
+                    CampoTextoExpediente(
+                        etiqueta = "PESO",
+                        valor = viewModel.peso,
+                        placeholder = "Ej. 8.5 kg",
+                        onValueChange = { viewModel.onPesoChange(it) }
+                    )
 
                     // nombre del dueño
                     CampoTextoExpediente(

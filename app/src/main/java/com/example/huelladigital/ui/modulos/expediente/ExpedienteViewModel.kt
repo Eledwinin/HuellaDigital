@@ -24,6 +24,13 @@ class ExpedienteViewModel(
         private set
     var notas by mutableStateOf("")
         private set
+
+    var edad by mutableStateOf("")
+        private set
+
+    var peso by mutableStateOf("")
+        private set
+
     var isloading by mutableStateOf(false)
         private set
     var mensajeError by mutableStateOf<String?>(null)
@@ -36,6 +43,8 @@ class ExpedienteViewModel(
     fun onNombreDuenioChange(nuevoDuenio: String) { nombreDuenio = nuevoDuenio }
     fun onTelefonoChange(nuevoTelefono: String) { telefonoDuenio = nuevoTelefono }
     fun onNotasChange(nuevasNotas: String) { notas = nuevasNotas }
+    fun onEdadChange(nuevo: String) { edad = nuevo }
+    fun onPesoChange(nuevo: String) { peso = nuevo }
 
     fun guardarExpediente(onExito : () -> Unit, onError : () -> Unit){
         val nombreLimpio = nombreMascota.trim()
@@ -51,6 +60,8 @@ class ExpedienteViewModel(
                 especie = especieSeleccionada,
                 nombre = nombreLimpio,
                 raza = raza.trim(),
+                edad = edad.trim(),
+                peso = peso.trim(),
                 nombreDuenio = nombreDuenio.trim(),
                 telefonoDuenio = telefonoDuenio.trim(),
                 notasAdicionales = notas.trim()

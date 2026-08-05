@@ -4,6 +4,8 @@ data class Mascota(
     val id: String = "",
     val nombre: String = "",
     val especie: String = Especie.PERRO.nombre,
+    val edad: String = "",
+    val peso: String = "",
     val raza: String = "",
     val nombreDuenio: String = "",
     val telefonoDuenio: String = "",

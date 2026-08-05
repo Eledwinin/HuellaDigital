@@ -42,14 +42,8 @@ import com.example.huelladigital.ui.messages.MensajesApp
 import com.example.huelladigital.ui.theme.*
 import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
-import java.time.LocalDate
-import java.time.LocalDateTime
-import java.time.format.DateTimeFormatter
 import java.util.Date
 import java.util.Locale
-
-//private val FORMATO_FECHA_HORA = DateTimeFormatter.ofPattern("d/M/yyyy h:mm a", Locale.US)
-//private val FORMATO_FECHA_SOLO = DateTimeFormatter.ofPattern("d/M/yyyy", Locale.getDefault())
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -187,63 +181,79 @@ fun DetalleExpedienteScreen(
                 .padding(innerPadding)
                 .padding(16.dp)
         ) {
-            // primera tarjeta, con la informaion del cliente
+            // TARJETA PRINCIPAL
             Card(
                 modifier = Modifier.fillMaxWidth(),
-                shape = RoundedCornerShape(16.dp),
-                colors = CardDefaults.cardColors(containerColor = DarkCardBg)
+                shape = RoundedCornerShape(20.dp),
+                colors = CardDefaults.cardColors(containerColor = DarkCardBg),
+                border = BorderStroke(1.5.dp, CyanPrimary)
             ) {
-                Column(modifier = Modifier.padding(20.dp)) {
+                Column(modifier = Modifier.padding(18.dp)) {
+                    //encabezado
                     Row(
                         modifier = Modifier.fillMaxWidth(),
                         verticalAlignment = Alignment.CenterVertically
                     ) {
-                        Icon(
-                            imageVector = Icons.Default.Pets,
-                            contentDescription = null,
-                            tint = CyanPrimary,
-                            modifier = Modifier.size(32.dp)
-                        )
-                        Spacer(modifier = Modifier.width(12.dp))
-
-                        Column(modifier = Modifier.weight(1f)) {
-                            Text(
-                                text = mascotaActual.nombre,
-                                color = TextWhite,
-                                fontSize = 22.sp,
-                                fontWeight = FontWeight.Bold
-                            )
-                            Text(
-                                text = "${mascotaActual.especie} • ${mascotaActual.raza}",
-                                color = TextThird,
-                                fontSize = 14.sp
-                            )
+                        // avatar del animal con emoji
+                        Surface(
+                            modifier = Modifier.size(72.dp),
+                            shape = RoundedCornerShape(18.dp),
+                            color = CyanPrimary
+                        ) {
+                            Box(contentAlignment = Alignment.Center) {
+                                Text(
+                                    text = obtenerEmojiEspecie(mascotaActual.especie),
+                                    fontSize = 36.sp
+                                )
+                            }
                         }
 
-                        // aqui estan los iconos para editar y elimnar
-                        Row(
-                            horizontalArrangement = Arrangement.spacedBy(4.dp),
-                            verticalAlignment = Alignment.CenterVertically
-                        ) {
-                            // este es el lapiz para editar que abre el modal
-                            IconButton(onClick = { mostrarModalEditar = true }) {
-                                Icon(
-                                    imageVector = Icons.Default.Edit,
-                                    contentDescription = "Editar Expediente",
-                                    tint = CyanPrimary,
-                                    modifier = Modifier.size(22.dp)
+                        Spacer(modifier = Modifier.width(14.dp))
+
+                        // INFORMACIÓN CENTRAL
+                        Column(modifier = Modifier.weight(1f)) {
+                            Row(
+                                modifier = Modifier.fillMaxWidth(),
+                                horizontalArrangement = Arrangement.SpaceBetween,
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                Text(
+                                    text = mascotaActual.nombre,
+                                    color = TextWhite,
+                                    fontSize = 22.sp,
+                                    fontWeight = FontWeight.Bold
                                 )
+
+                                // expediente codigo
+                                Surface(
+                                    shape = RoundedCornerShape(12.dp),
+                                    color = Color(0xFF0F1923),
+                                    border = BorderStroke(1.dp, CyanPrimary.copy(alpha = 0.5f))
+                                ) {
+                                    Text(
+                                        text = "EXP-${mascotaActual.id.takeLast(3).uppercase().ifBlank { "001" }}",
+                                        color = CyanPrimary,
+                                        fontSize = 10.sp,
+                                        fontWeight = FontWeight.Bold,
+                                        modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp)
+                                    )
+                                }
                             }
 
-                            // para eliminar el expediente
-                            IconButton(onClick = { mostrarDialogoEliminar = true }) {
-                                Icon(
-                                    imageVector = Icons.Default.Delete,
-                                    contentDescription = "Eliminar Expediente",
-                                    tint = AccentPink,
-                                    modifier = Modifier.size(22.dp)
-                                )
-                            }
+                            Spacer(modifier = Modifier.height(2.dp))
+
+                            Text(
+                                text = "${mascotaActual.especie} • ${mascotaActual.raza}",
+                                color = CyanPrimary.copy(alpha = 0.9f),
+                                fontSize = 13.sp,
+                                fontWeight = FontWeight.SemiBold
+                            )
+
+                            Text(
+                                text = "Dueño: ${mascotaActual.nombreDuenio}",
+                                color = TextThird,
+                                fontSize = 13.sp
+                            )
                         }
                     }
 
@@ -252,63 +262,103 @@ fun DetalleExpedienteScreen(
                         color = TextSecondary.copy(alpha = 0.2f)
                     )
 
-                    // DATOS DEL DUEÑO
-                    Row(verticalAlignment = Alignment.CenterVertically) {
-                        Icon(
-                            imageVector = Icons.Default.Person,
-                            contentDescription = null,
-                            tint = AccentPink,
-                            modifier = Modifier.size(18.dp)
-                        )
-                        Spacer(modifier = Modifier.width(8.dp))
-                        Text(
-                            text = "Dueño: ${mascotaActual.nombreDuenio}",
-                            color = TextWhite,
-                            fontSize = 14.sp
-                        )
-                    }
-
-                    Spacer(modifier = Modifier.height(8.dp))
-
-                    Row(verticalAlignment = Alignment.CenterVertically) {
-                        Icon(
-                            imageVector = Icons.Default.Phone,
-                            contentDescription = null,
-                            tint = AccentPink,
-                            modifier = Modifier.size(18.dp)
-                        )
-                        Spacer(modifier = Modifier.width(8.dp))
-                        Text(
-                            text = "Teléfono: ${mascotaActual.telefonoDuenio}",
-                            color = TextWhite,
-                            fontSize = 14.sp
-                        )
-                    }
-
-                    // NOTAS ADICIONALES
-                    val textoNotas = mascotaActual.notasAdicionales.ifBlank { "Sin notas registradas." }
-                    Spacer(modifier = Modifier.height(14.dp))
-
-                    Surface(
+                    // fila de metricas
+                    Row(
                         modifier = Modifier.fillMaxWidth(),
-                        shape = RoundedCornerShape(10.dp),
-                        color = InputBackground
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically
                     ) {
-                        Column(modifier = Modifier.padding(12.dp)) {
+                        // EDAD
+                        Column(horizontalAlignment = Alignment.Start) {
                             Text(
-                                text = "NOTAS ADICIONALES:",
-                                color = CyanPrimary,
+                                text = "EDAD",
+                                color = TextThird,
                                 fontSize = 10.sp,
                                 fontWeight = FontWeight.Bold,
                                 letterSpacing = 0.8.sp
                             )
-                            Spacer(modifier = Modifier.height(4.dp))
+                            Spacer(modifier = Modifier.height(2.dp))
                             Text(
-                                text = textoNotas,
-                                color = TextWhite.copy(alpha = 0.9f),
-                                fontSize = 13.sp,
-                                lineHeight = 18.sp
+                                text = mascotaActual.edad.ifBlank { "N/A" },
+                                color = TextWhite,
+                                fontSize = 14.sp,
+                                fontWeight = FontWeight.Bold
                             )
+                        }
+
+                        // PESO
+                        Column(horizontalAlignment = Alignment.Start) {
+                            Text(
+                                text = "PESO",
+                                color = TextThird,
+                                fontSize = 10.sp,
+                                fontWeight = FontWeight.Bold,
+                                letterSpacing = 0.8.sp
+                            )
+                            Spacer(modifier = Modifier.height(2.dp))
+                            Text(
+                                text = mascotaActual.peso.ifBlank { "N/A" },
+                                color = TextWhite,
+                                fontSize = 14.sp,
+                                fontWeight = FontWeight.Bold
+                            )
+                        }
+
+                        // TELÉFONO
+                        Column(horizontalAlignment = Alignment.Start) {
+                            Text(
+                                text = "TELÉFONO",
+                                color = TextThird,
+                                fontSize = 10.sp,
+                                fontWeight = FontWeight.Bold,
+                                letterSpacing = 0.8.sp
+                            )
+                            Spacer(modifier = Modifier.height(2.dp))
+                            Text(
+                                text = mascotaActual.telefonoDuenio.ifBlank { "N/A" },
+                                color = TextWhite,
+                                fontSize = 14.sp,
+                                fontWeight = FontWeight.Bold
+                            )
+                        }
+
+                        // ICONOS DE EDICIÓN Y ELIMINACIÓN
+                        Row(horizontalArrangement = Arrangement.spacedBy(2.dp)) {
+                            IconButton(onClick = { mostrarModalEditar = true }, modifier = Modifier.size(32.dp)) {
+                                Icon(
+                                    imageVector = Icons.Default.Edit,
+                                    contentDescription = "Editar Expediente",
+                                    tint = CyanPrimary,
+                                    modifier = Modifier.size(20.dp)
+                                )
+                            }
+
+                            IconButton(onClick = { mostrarDialogoEliminar = true }, modifier = Modifier.size(32.dp)) {
+                                Icon(
+                                    imageVector = Icons.Default.Delete,
+                                    contentDescription = "Eliminar Expediente",
+                                    tint = AccentPink,
+                                    modifier = Modifier.size(20.dp)
+                                )
+                            }
+                        }
+                    }
+
+                    // NOTAS ADICIONALES
+                    if (mascotaActual.notasAdicionales.isNotBlank()) {
+                        Spacer(modifier = Modifier.height(12.dp))
+                        Surface(
+                            modifier = Modifier.fillMaxWidth(),
+                            shape = RoundedCornerShape(8.dp),
+                            color = InputBackground
+                        ) {
+                            Column(modifier = Modifier.padding(10.dp)) {
+                                Text(
+                                    text = "NOTAS: ${mascotaActual.notasAdicionales}",
+                                    color = TextWhite.copy(alpha = 0.85f),
+                                    fontSize = 12.sp
+                                )
+                            }
                         }
                     }
                 }
@@ -511,6 +561,8 @@ private fun ModalEditarExpedienteDialog(
     var nombreDuenio by remember { mutableStateOf(mascota.nombreDuenio) }
     var telefonoDuenio by remember { mutableStateOf(mascota.telefonoDuenio) }
     var notas by remember { mutableStateOf(mascota.notasAdicionales) }
+    var edad by remember { mutableStateOf(mascota.edad) }
+    var peso by remember { mutableStateOf(mascota.peso) }
 
     var guardando by remember { mutableStateOf(false) }
     var mensajeError by remember { mutableStateOf<String?>(null) }
@@ -598,6 +650,27 @@ private fun ModalEditarExpedienteDialog(
                     onValueChange = { raza = it }
                 )
 
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    CampoTextoModal(
+                        etiqueta = "EDAD",
+                        valor = edad,
+                        placeholder = "Ej. 2 años",
+                        modifier = Modifier.weight(1f),
+                        onValueChange = { edad = it }
+                    )
+
+                    CampoTextoModal(
+                        etiqueta = "PESO",
+                        valor = peso,
+                        placeholder = "Ej. 8.5 kg",
+                        modifier = Modifier.weight(1f),
+                        onValueChange = { peso = it }
+                    )
+                }
+
                 CampoTextoModal(
                     etiqueta = "NOMBRE DEL DUEÑO *",
                     valor = nombreDuenio,
@@ -644,6 +717,8 @@ private fun ModalEditarExpedienteDialog(
                                 especie = especieSeleccionada,
                                 nombre = nombreMascota.trim(),
                                 raza = raza.trim(),
+                                edad = edad.trim(),
+                                peso = peso.trim(),
                                 nombreDuenio = nombreDuenio.trim(),
                                 telefonoDuenio = telefonoDuenio.trim(),
                                 notasAdicionales = notas.trim()
@@ -718,12 +793,13 @@ private fun CampoTextoModal(
     etiqueta: String,
     valor: String,
     placeholder: String,
+    modifier: Modifier = Modifier,
     lineasMaximas: Int = 1,
     tipoTeclado: KeyboardType = KeyboardType.Text,
     accionIme: ImeAction = ImeAction.Next,
     onValueChange: (String) -> Unit
 ) {
-    Column(modifier = Modifier.padding(bottom = 10.dp)) {
+    Column(modifier = modifier.padding(bottom = 10.dp)) {
         Text(
             text = etiqueta,
             color = CyanPrimary,
@@ -755,7 +831,6 @@ private fun CampoTextoModal(
 }
 
 // determina si la cita ya pasó considerando la FECHA y la HORA exacta
-
 fun obtenerEstadoCita(fechaTexto: String, horaTexto: String = ""): String {
     val fechaLimpia = fechaTexto.trim()
     val horaLimpia = horaTexto.trim()
@@ -787,4 +862,13 @@ private fun convertirTextoADate(fechaTexto: String): Long {
         val sdf = SimpleDateFormat("d/M/yyyy", Locale.getDefault())
         sdf.parse(fechaTexto.trim())?.time ?: 0L
     }.getOrDefault(0L)
+}
+
+private fun obtenerEmojiEspecie(especie: String): String {
+    return when (especie.lowercase().trim()) {
+        "perro", "chucho" -> "🐶"
+        "gato" -> "🐱"
+        "conejo" -> "🐰"
+        else -> "🐾"
+    }
 }
