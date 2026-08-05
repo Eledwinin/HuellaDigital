@@ -19,14 +19,12 @@ import androidx.compose.material.icons.filled.CalendarToday
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Edit
-import androidx.compose.material.icons.filled.Person
-import androidx.compose.material.icons.filled.Phone
-import androidx.compose.material.icons.filled.Pets
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
@@ -58,7 +56,7 @@ fun DetalleExpedienteScreen(
     var citasMascota by remember { mutableStateOf<List<Cita>>(emptyList()) }
     var cargandoCitas by remember { mutableStateOf(true) }
 
-    //este es el estado para el dialogo de eliminar
+    // este es el estado para el dialogo de eliminar
     var mostrarDialogoEliminar by remember { mutableStateOf(false) }
     var eliminando by remember { mutableStateOf(false) }
 
@@ -68,7 +66,7 @@ fun DetalleExpedienteScreen(
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
 
-    //guardar la mascota actual (estado reactivo para la UI)
+    // guardar la mascota actual (estado reactivo para la UI)
     var mascotaActual by remember(mascota) { mutableStateOf(mascota) }
 
     // DIÁLOGO DE CONFIRMACIÓN
@@ -130,10 +128,7 @@ fun DetalleExpedienteScreen(
         cargandoCitas = true
         val res = repository.obtenerCitas()
         res.onSuccess { lista ->
-            // busca la mascota
             val filtradas = lista.filter { it.mascotaId == mascota.id }
-
-            // ordena por fecha
             citasMascota = filtradas.sortedBy { cita ->
                 convertirTextoADate(cita.fecha)
             }
@@ -189,12 +184,11 @@ fun DetalleExpedienteScreen(
                 border = BorderStroke(1.5.dp, CyanPrimary)
             ) {
                 Column(modifier = Modifier.padding(18.dp)) {
-                    //encabezado
+                    // encabezado
                     Row(
                         modifier = Modifier.fillMaxWidth(),
                         verticalAlignment = Alignment.CenterVertically
                     ) {
-                        // avatar del animal con emoji
                         Surface(
                             modifier = Modifier.size(72.dp),
                             shape = RoundedCornerShape(18.dp),
@@ -210,7 +204,6 @@ fun DetalleExpedienteScreen(
 
                         Spacer(modifier = Modifier.width(14.dp))
 
-                        // INFORMACIÓN CENTRAL
                         Column(modifier = Modifier.weight(1f)) {
                             Row(
                                 modifier = Modifier.fillMaxWidth(),
@@ -224,7 +217,6 @@ fun DetalleExpedienteScreen(
                                     fontWeight = FontWeight.Bold
                                 )
 
-                                // expediente codigo
                                 Surface(
                                     shape = RoundedCornerShape(12.dp),
                                     color = Color(0xFF0F1923),
@@ -268,7 +260,6 @@ fun DetalleExpedienteScreen(
                         horizontalArrangement = Arrangement.SpaceBetween,
                         verticalAlignment = Alignment.CenterVertically
                     ) {
-                        // EDAD
                         Column(horizontalAlignment = Alignment.Start) {
                             Text(
                                 text = "EDAD",
@@ -286,7 +277,6 @@ fun DetalleExpedienteScreen(
                             )
                         }
 
-                        // PESO
                         Column(horizontalAlignment = Alignment.Start) {
                             Text(
                                 text = "PESO",
@@ -304,7 +294,6 @@ fun DetalleExpedienteScreen(
                             )
                         }
 
-                        // TELÉFONO
                         Column(horizontalAlignment = Alignment.Start) {
                             Text(
                                 text = "TELÉFONO",
@@ -322,7 +311,6 @@ fun DetalleExpedienteScreen(
                             )
                         }
 
-                        // ICONOS DE EDICIÓN Y ELIMINACIÓN
                         Row(horizontalArrangement = Arrangement.spacedBy(2.dp)) {
                             IconButton(onClick = { mostrarModalEditar = true }, modifier = Modifier.size(32.dp)) {
                                 Icon(
@@ -344,7 +332,6 @@ fun DetalleExpedienteScreen(
                         }
                     }
 
-                    // NOTAS ADICIONALES
                     if (mascotaActual.notasAdicionales.isNotBlank()) {
                         Spacer(modifier = Modifier.height(12.dp))
                         Surface(
@@ -366,7 +353,6 @@ fun DetalleExpedienteScreen(
 
             Spacer(modifier = Modifier.height(20.dp))
 
-            // aqui va el historial de citas de ese paceinte
             Text(
                 text = "HISTORIAL DE CITAS",
                 color = CyanPrimary,
@@ -395,7 +381,6 @@ fun DetalleExpedienteScreen(
                     )
                 }
             } else {
-                // estas 2 seran para separar las cittas, de pendientes a finalesizadas
                 val citasPendientes = remember(citasMascota) {
                     citasMascota.filter { obtenerEstadoCita(it.fecha, it.hora) == "PENDIENTE" }
                 }
@@ -403,13 +388,11 @@ fun DetalleExpedienteScreen(
                     citasMascota.filter { obtenerEstadoCita(it.fecha, it.hora) == "FINALIZADO" }
                 }
 
-                // Estado para controlar el desplegable de citas terminadas
                 var desplegarFinalizadas by remember { mutableStateOf(false) }
 
                 LazyColumn(
                     verticalArrangement = Arrangement.spacedBy(10.dp)
                 ) {
-                    //seccion de pendientes
                     if (citasPendientes.isNotEmpty()) {
                         items(citasPendientes) { cita ->
                             TarjetaItemCita(cita = cita, estado = "PENDIENTE")
@@ -425,12 +408,10 @@ fun DetalleExpedienteScreen(
                         }
                     }
 
-                    //seccion de finalizadas
                     if (citasFinalizadas.isNotEmpty()) {
                         item {
                             Spacer(modifier = Modifier.height(8.dp))
 
-                            // Botón encabezado desplegable
                             Surface(
                                 onClick = { desplegarFinalizadas = !desplegarFinalizadas },
                                 shape = RoundedCornerShape(8.dp),
@@ -461,7 +442,6 @@ fun DetalleExpedienteScreen(
                                 }
                             }
                         }
-                        // Lista desplegable de terminadas
                         if (desplegarFinalizadas) {
                             items(citasFinalizadas) { cita ->
                                 TarjetaItemCita(cita = cita, estado = "FINALIZADO")
@@ -474,7 +454,6 @@ fun DetalleExpedienteScreen(
     }
 }
 
-//dibula la tarjeta de la cita
 @Composable
 private fun TarjetaItemCita(cita: Cita, estado: String) {
     val esFinalizado = estado == "FINALIZADO"
@@ -499,7 +478,6 @@ private fun TarjetaItemCita(cita: Cita, estado: String) {
 
             Spacer(modifier = Modifier.width(12.dp))
 
-            // Información central de la cita
             Column(modifier = Modifier.weight(1f)) {
                 Text(
                     text = cita.servicio,
@@ -524,7 +502,6 @@ private fun TarjetaItemCita(cita: Cita, estado: String) {
 
             Spacer(modifier = Modifier.width(8.dp))
 
-            // esto muestra el estado de la cita
             Surface(
                 shape = RoundedCornerShape(6.dp),
                 color = if (esFinalizado) Color(0xFF1E3A1E) else Color(0xFF3A301E),
@@ -545,7 +522,7 @@ private fun TarjetaItemCita(cita: Cita, estado: String) {
     }
 }
 
-// modal para editar el expediente
+// MODAL PARA EDITAR EL EXPEDIENTE (CON DESPLEGABLE DE EDAD Y PESO EN LBS)
 @Composable
 private fun ModalEditarExpedienteDialog(
     mascota: Mascota,
@@ -561,8 +538,30 @@ private fun ModalEditarExpedienteDialog(
     var nombreDuenio by remember { mutableStateOf(mascota.nombreDuenio) }
     var telefonoDuenio by remember { mutableStateOf(mascota.telefonoDuenio) }
     var notas by remember { mutableStateOf(mascota.notasAdicionales) }
-    var edad by remember { mutableStateOf(mascota.edad) }
-    var peso by remember { mutableStateOf(mascota.peso) }
+
+    // PARSEO Y ESTADOS PARA EDAD (Años / Meses)
+    var numeroEdad by remember(mascota.edad) {
+        mutableStateOf(
+            mascota.edad
+                .replace(" Años", "", ignoreCase = true)
+                .replace(" Meses", "", ignoreCase = true)
+                .trim()
+        )
+    }
+    var unidadEdad by remember(mascota.edad) {
+        mutableStateOf(if (mascota.edad.contains("Meses", ignoreCase = true)) "Meses" else "Años")
+    }
+    var expandedDropdown by remember { mutableStateOf(false) }
+
+    // PARSEO Y ESTADOS PARA PESO (lbs con 2 decimales max)
+    var valorPeso by remember(mascota.peso) {
+        mutableStateOf(
+            mascota.peso
+                .replace(" lbs", "", ignoreCase = true)
+                .replace(" kg", "", ignoreCase = true)
+                .trim()
+        )
+    }
 
     var guardando by remember { mutableStateOf(false) }
     var mensajeError by remember { mutableStateOf<String?>(null) }
@@ -650,24 +649,134 @@ private fun ModalEditarExpedienteDialog(
                     onValueChange = { raza = it }
                 )
 
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.spacedBy(8.dp)
-                ) {
-                    CampoTextoModal(
-                        etiqueta = "EDAD",
-                        valor = edad,
-                        placeholder = "Ej. 2 años",
-                        modifier = Modifier.weight(1f),
-                        onValueChange = { edad = it }
+                // EDAD CON SELECTOR DE UNIDAD (Años / Meses)
+                Column(modifier = Modifier.padding(bottom = 10.dp)) {
+                    Text(
+                        text = "EDAD",
+                        color = CyanPrimary,
+                        fontSize = 10.sp,
+                        fontWeight = FontWeight.Bold,
+                        letterSpacing = 0.8.sp,
+                        modifier = Modifier.padding(bottom = 4.dp)
                     )
 
-                    CampoTextoModal(
-                        etiqueta = "PESO",
-                        valor = peso,
-                        placeholder = "Ej. 8.5 kg",
-                        modifier = Modifier.weight(1f),
-                        onValueChange = { peso = it }
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.spacedBy(8.dp),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        OutlinedTextField(
+                            value = numeroEdad,
+                            onValueChange = { nuevoTexto ->
+                                if (nuevoTexto.isEmpty() || nuevoTexto.all { it.isDigit() }) {
+                                    numeroEdad = nuevoTexto
+                                }
+                            },
+                            modifier = Modifier.weight(1f),
+                            placeholder = { Text("Ej. 6", color = TextSecondary.copy(alpha = 0.5f), fontSize = 12.sp) },
+                            singleLine = true,
+                            shape = RoundedCornerShape(8.dp),
+                            colors = OutlinedTextFieldDefaults.colors(
+                                focusedContainerColor = InputBackground,
+                                unfocusedContainerColor = InputBackground,
+                                focusedBorderColor = CyanPrimary,
+                                unfocusedBorderColor = Color.Transparent,
+                                focusedTextColor = TextWhite,
+                                unfocusedTextColor = TextWhite
+                            ),
+                            keyboardOptions = KeyboardOptions(
+                                keyboardType = KeyboardType.Number,
+                                imeAction = ImeAction.Next
+                            )
+                        )
+
+                        // Menú Desplegable Años / Meses
+                        Box {
+                            OutlinedButton(
+                                onClick = { expandedDropdown = true },
+                                shape = RoundedCornerShape(8.dp),
+                                modifier = Modifier.height(56.dp),
+                                colors = ButtonDefaults.outlinedButtonColors(
+                                    containerColor = InputBackground,
+                                    contentColor = CyanPrimary
+                                ),
+                                border = ButtonDefaults.outlinedButtonBorder.copy(
+                                    brush = SolidColor(CyanPrimary)
+                                )
+                            ) {
+                                Text(
+                                    text = "$unidadEdad ▾",
+                                    fontSize = 12.sp,
+                                    fontWeight = FontWeight.Bold
+                                )
+                            }
+
+                            DropdownMenu(
+                                expanded = expandedDropdown,
+                                onDismissRequest = { expandedDropdown = false },
+                                modifier = Modifier.background(DarkCardBg)
+                            ) {
+                                DropdownMenuItem(
+                                    text = { Text("Años", color = TextWhite) },
+                                    onClick = {
+                                        unidadEdad = "Años"
+                                        expandedDropdown = false
+                                    }
+                                )
+                                DropdownMenuItem(
+                                    text = { Text("Meses", color = TextWhite) },
+                                    onClick = {
+                                        unidadEdad = "Meses"
+                                        expandedDropdown = false
+                                    }
+                                )
+                            }
+                        }
+                    }
+                }
+
+                // PESO
+                Column(modifier = Modifier.padding(bottom = 10.dp)) {
+                    Text(
+                        text = "PESO",
+                        color = CyanPrimary,
+                        fontSize = 10.sp,
+                        fontWeight = FontWeight.Bold,
+                        letterSpacing = 0.8.sp,
+                        modifier = Modifier.padding(bottom = 4.dp)
+                    )
+
+                    OutlinedTextField(
+                        value = valorPeso,
+                        onValueChange = { nuevoTexto ->
+                            if (nuevoTexto.isEmpty() || nuevoTexto.matches(Regex("^\\d*\\.?\\d{0,2}$"))) {
+                                valorPeso = nuevoTexto
+                            }
+                        },
+                        modifier = Modifier.fillMaxWidth(),
+                        placeholder = { Text("Ej. 12.50", color = TextSecondary.copy(alpha = 0.5f), fontSize = 12.sp) },
+                        suffix = {
+                            Text(
+                                text = "lbs",
+                                color = CyanPrimary,
+                                fontWeight = FontWeight.Bold,
+                                fontSize = 12.sp
+                            )
+                        },
+                        singleLine = true,
+                        shape = RoundedCornerShape(8.dp),
+                        colors = OutlinedTextFieldDefaults.colors(
+                            focusedContainerColor = InputBackground,
+                            unfocusedContainerColor = InputBackground,
+                            focusedBorderColor = CyanPrimary,
+                            unfocusedBorderColor = Color.Transparent,
+                            focusedTextColor = TextWhite,
+                            unfocusedTextColor = TextWhite
+                        ),
+                        keyboardOptions = KeyboardOptions(
+                            keyboardType = KeyboardType.Decimal,
+                            imeAction = ImeAction.Next
+                        )
                     )
                 }
 
@@ -713,12 +822,16 @@ private fun ModalEditarExpedienteDialog(
                             guardando = true
                             mensajeError = null
 
+                            // Concatenamos edad y peso formateados
+                            val edadFinal = if (numeroEdad.isNotBlank()) "$numeroEdad $unidadEdad" else ""
+                            val pesoFinal = if (valorPeso.isNotBlank()) "$valorPeso lbs" else ""
+
                             val mascotaEditada = mascota.copy(
                                 especie = especieSeleccionada,
                                 nombre = nombreMascota.trim(),
                                 raza = raza.trim(),
-                                edad = edad.trim(),
-                                peso = peso.trim(),
+                                edad = edadFinal,
+                                peso = pesoFinal,
                                 nombreDuenio = nombreDuenio.trim(),
                                 telefonoDuenio = telefonoDuenio.trim(),
                                 notasAdicionales = notas.trim()

@@ -12,10 +12,11 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material3.*
-import androidx.compose.runtime.Composable
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
@@ -24,7 +25,6 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.huelladigital.ui.messages.MensajesApp
-// Importamos tus colores centralizados desde ui.theme
 import com.example.huelladigital.ui.theme.*
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -35,6 +35,14 @@ fun CrearExpedienteScreen(
 ) {
     val context = LocalContext.current
     val scrollState = rememberScrollState()
+
+    // Estados locales para manejar la división de Edad y Unidad
+    var numeroEdad by remember { mutableStateOf("") }
+    var unidadEdad by remember { mutableStateOf("Años") }
+    var expandedDropdown by remember { mutableStateOf(false) }
+
+    // Estado local para el número del peso
+    var valorPeso by remember { mutableStateOf("") }
 
     Scaffold(
         topBar = {
@@ -70,7 +78,6 @@ fun CrearExpedienteScreen(
                 .padding(16.dp)
                 .verticalScroll(scrollState)
         ) {
-            // Contenedor principal estilo tarjeta usando tu DarkCardBg
             Card(
                 modifier = Modifier.fillMaxWidth(),
                 shape = RoundedCornerShape(16.dp),
@@ -115,7 +122,7 @@ fun CrearExpedienteScreen(
 
                     Spacer(modifier = Modifier.height(20.dp))
 
-                    // Nombre de la pet
+                    // Nombre de la mascota
                     CampoTextoExpediente(
                         etiqueta = "NOMBRE DE LA MASCOTA *",
                         valor = viewModel.nombreMascota,
@@ -123,28 +130,154 @@ fun CrearExpedienteScreen(
                         onValueChange = { viewModel.onNombreMascotaChange(it) }
                     )
 
-                    // raza
+                    // Raza
                     CampoTextoExpediente(
                         etiqueta = "RAZA *",
                         valor = viewModel.raza,
                         placeholder = "Ej. Beagle",
                         onValueChange = { viewModel.onRazaChange(it) }
                     )
-                    CampoTextoExpediente(
-                        etiqueta = "EDAD",
-                        valor = viewModel.edad,
-                        placeholder = "Ej. 2 años",
-                        onValueChange = { viewModel.onEdadChange(it) }
-                    )
 
-                    CampoTextoExpediente(
-                        etiqueta = "PESO",
-                        valor = viewModel.peso,
-                        placeholder = "Ej. 8.5 kg",
-                        onValueChange = { viewModel.onPesoChange(it) }
-                    )
+                    // EDAD CON SELECTOR DE UNIDAD (Años / Meses)
+                    Column(modifier = Modifier.padding(bottom = 14.dp)) {
+                        Text(
+                            text = "EDAD",
+                            color = CyanPrimary,
+                            fontSize = 10.sp,
+                            fontWeight = FontWeight.Bold,
+                            letterSpacing = 0.8.sp,
+                            modifier = Modifier.padding(bottom = 6.dp)
+                        )
 
-                    // nombre del dueño
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.spacedBy(8.dp),
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            OutlinedTextField(
+                                value = numeroEdad,
+                                onValueChange = { nuevoTexto ->
+                                    if (nuevoTexto.isEmpty() || nuevoTexto.all { it.isDigit() }) {
+                                        numeroEdad = nuevoTexto
+                                        val edadFinal = if (nuevoTexto.isNotBlank()) "$nuevoTexto $unidadEdad" else ""
+                                        viewModel.onEdadChange(edadFinal)
+                                    }
+                                },
+                                modifier = Modifier.weight(1f),
+                                placeholder = { Text("Ej. 6", color = TextSecondary.copy(alpha = 0.5f), fontSize = 13.sp) },
+                                singleLine = true,
+                                shape = RoundedCornerShape(10.dp),
+                                colors = OutlinedTextFieldDefaults.colors(
+                                    focusedContainerColor = InputBackground,
+                                    unfocusedContainerColor = InputBackground,
+                                    focusedBorderColor = CyanPrimary,
+                                    unfocusedBorderColor = Color.Transparent,
+                                    focusedTextColor = TextWhite,
+                                    unfocusedTextColor = TextWhite
+                                ),
+                                keyboardOptions = KeyboardOptions(
+                                    keyboardType = KeyboardType.Number,
+                                    imeAction = ImeAction.Next
+                                )
+                            )
+
+                            // Menú Desplegable Años / Meses
+                            Box {
+                                OutlinedButton(
+                                    onClick = { expandedDropdown = true },
+                                    shape = RoundedCornerShape(10.dp),
+                                    modifier = Modifier.height(56.dp),
+                                    colors = ButtonDefaults.outlinedButtonColors(
+                                        containerColor = InputBackground,
+                                        contentColor = CyanPrimary
+                                    ),
+                                    border = ButtonDefaults.outlinedButtonBorder.copy(
+                                        brush = SolidColor(CyanPrimary)
+                                    )
+                                ) {
+                                    Text(
+                                        text = "$unidadEdad ▾",
+                                        fontSize = 13.sp,
+                                        fontWeight = FontWeight.Bold
+                                    )
+                                }
+
+                                DropdownMenu(
+                                    expanded = expandedDropdown,
+                                    onDismissRequest = { expandedDropdown = false },
+                                    modifier = Modifier.background(DarkCardBg)
+                                ) {
+                                    DropdownMenuItem(
+                                        text = { Text("Años", color = TextWhite) },
+                                        onClick = {
+                                            unidadEdad = "Años"
+                                            expandedDropdown = false
+                                            val edadFinal = if (numeroEdad.isNotBlank()) "$numeroEdad $unidadEdad" else ""
+                                            viewModel.onEdadChange(edadFinal)
+                                        }
+                                    )
+                                    DropdownMenuItem(
+                                        text = { Text("Meses", color = TextWhite) },
+                                        onClick = {
+                                            unidadEdad = "Meses"
+                                            expandedDropdown = false
+                                            val edadFinal = if (numeroEdad.isNotBlank()) "$numeroEdad $unidadEdad" else ""
+                                            viewModel.onEdadChange(edadFinal)
+                                        }
+                                    )
+                                }
+                            }
+                        }
+                    }
+
+                    // PESO
+                    Column(modifier = Modifier.padding(bottom = 14.dp)) {
+                        Text(
+                            text = "PESO",
+                            color = CyanPrimary,
+                            fontSize = 10.sp,
+                            fontWeight = FontWeight.Bold,
+                            letterSpacing = 0.8.sp,
+                            modifier = Modifier.padding(bottom = 6.dp)
+                        )
+
+                        OutlinedTextField(
+                            value = valorPeso,
+                            onValueChange = { nuevoTexto ->
+                                if (nuevoTexto.isEmpty() || nuevoTexto.matches(Regex("^\\d*\\.?\\d{0,2}$"))) {
+                                    valorPeso = nuevoTexto
+                                    val pesoFinal = if (nuevoTexto.isNotBlank()) "$nuevoTexto lbs" else ""
+                                    viewModel.onPesoChange(pesoFinal)
+                                }
+                            },
+                            modifier = Modifier.fillMaxWidth(),
+                            placeholder = { Text("Ej. 12.5", color = TextSecondary.copy(alpha = 0.5f), fontSize = 13.sp) },
+                            suffix = {
+                                Text(
+                                    text = "lbs",
+                                    color = CyanPrimary,
+                                    fontWeight = FontWeight.Bold,
+                                    fontSize = 13.sp
+                                )
+                            },
+                            singleLine = true,
+                            shape = RoundedCornerShape(10.dp),
+                            colors = OutlinedTextFieldDefaults.colors(
+                                focusedContainerColor = InputBackground,
+                                unfocusedContainerColor = InputBackground,
+                                focusedBorderColor = CyanPrimary,
+                                unfocusedBorderColor = Color.Transparent,
+                                focusedTextColor = TextWhite,
+                                unfocusedTextColor = TextWhite
+                            ),
+                            keyboardOptions = KeyboardOptions(
+                                keyboardType = KeyboardType.Decimal,
+                                imeAction = ImeAction.Next
+                            )
+                        )
+                    }
+
+                    // Nombre del dueño
                     CampoTextoExpediente(
                         etiqueta = "NOMBRE DEL DUEÑO *",
                         valor = viewModel.nombreDuenio,
@@ -152,19 +285,19 @@ fun CrearExpedienteScreen(
                         onValueChange = { viewModel.onNombreDuenioChange(it) }
                     )
 
-                    // telephone de contact
+                    // Teléfono de contacto
                     CampoTextoExpediente(
                         etiqueta = "TELÉFONO DE CONTACTO *",
                         valor = viewModel.telefonoDuenio,
-                        placeholder = "7890-4321",
-                        tipoTeclado = KeyboardType.NumberPassword, // Evita símbolos en el teclado
+                        placeholder = "78904321",
+                        tipoTeclado = KeyboardType.Number,
                         onValueChange = { textoNuevo ->
                             val telefonoFormateado = telefonoCorrect(textoNuevo)
                             viewModel.onTelefonoChange(telefonoFormateado)
                         }
                     )
 
-                    // info adicional
+                    // Información adicional
                     CampoTextoExpediente(
                         etiqueta = "NOTAS ADICIONALES",
                         valor = viewModel.notas,
@@ -174,7 +307,7 @@ fun CrearExpedienteScreen(
                         onValueChange = { viewModel.onNotasChange(it) }
                     )
 
-                    // message de error
+                    // Mensaje de error
                     viewModel.mensajeError?.let { error ->
                         Spacer(modifier = Modifier.height(8.dp))
                         Text(
@@ -186,7 +319,7 @@ fun CrearExpedienteScreen(
 
                     Spacer(modifier = Modifier.height(24.dp))
 
-                    // Boton para guardar el expediente
+                    // Botón para guardar el expediente
                     Button(
                         onClick = {
                             viewModel.guardarExpediente(
@@ -196,7 +329,6 @@ fun CrearExpedienteScreen(
                                 },
                                 onError = {
                                     Toast.makeText(context, MensajesApp.EXPEDIENTE_GUARDADO_ERROR, Toast.LENGTH_LONG).show()
-
                                 }
                             )
                         },
@@ -230,7 +362,6 @@ fun CrearExpedienteScreen(
     }
 }
 
-// funcion para la seeleccion de especie, más dinamico
 @Composable
 private fun EspecieChip(
     titulo: String,
@@ -262,7 +393,6 @@ private fun EspecieChip(
     }
 }
 
-// para las cajas de text
 @Composable
 private fun CampoTextoExpediente(
     etiqueta: String,
@@ -306,7 +436,7 @@ private fun CampoTextoExpediente(
         )
     }
 }
-private fun telefonoCorrect(input: String): String {
 
+private fun telefonoCorrect(input: String): String {
     return input.filter { it.isDigit() }.take(8)
 }

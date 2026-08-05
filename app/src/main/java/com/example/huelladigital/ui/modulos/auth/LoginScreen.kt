@@ -8,8 +8,6 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Lock
-import androidx.compose.material.icons.filled.Mail
 import androidx.compose.material.icons.filled.Pets
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -27,7 +25,11 @@ import androidx.compose.ui.unit.sp
 import com.example.huelladigital.ui.theme.*
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.Image
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
+import com.example.huelladigital.R
 
 @Composable
 fun LoginScreen(
@@ -74,18 +76,19 @@ fun LoginScreen(
         ) {
 
 
-            Box(
-                modifier = Modifier
-                    .size(72.dp)
-                    .background(CyanPrimary, shape = RoundedCornerShape(20.dp)),
-                contentAlignment = Alignment.Center
+            Surface(
+                modifier = Modifier.size(150.dp),
+                shape = RoundedCornerShape(50.dp),
+                color = Color.Transparent
             ) {
-                Icon(
-                    imageVector = Icons.Default.Pets,
-                    contentDescription = "Logo",
-                    tint = DarkBackground,
-                    modifier = Modifier.size(40.dp)
-                )
+                Box(contentAlignment = Alignment.Center) {
+                    Image(
+                        painter = painterResource(id = R.drawable.logotipo),
+                        contentDescription = "Logo Huella Digital",
+                        modifier = Modifier.size(130.dp),
+                        contentScale = ContentScale.Fit
+                    )
+                }
             }
 
             Spacer(modifier = Modifier.height(16.dp))
@@ -309,15 +312,11 @@ fun LoginScreen(
                         modifier = Modifier.fillMaxWidth(),
                         horizontalArrangement = Arrangement.Center
                     ) {
-                        Text(
-                            text = "¿Nuevo en nuestra App? ",
-                            color = TextSecondary,
-                            fontSize = 12.sp
-                        )
+
                         Text(
                             text = "Crea tu Cuenta",
                             color = AccentPink,
-                            fontSize = 12.sp,
+                            fontSize = 16.sp,
                             fontWeight = FontWeight.Bold,
                             modifier = Modifier.clickable { onNavigateToRegister() }
                         )

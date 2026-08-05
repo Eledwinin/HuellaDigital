@@ -1,5 +1,6 @@
 package com.example.huelladigital.ui.modulos.home
 
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -20,10 +21,13 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.example.huelladigital.R
 import com.example.huelladigital.data.model.Mascota
 import com.example.huelladigital.ui.theme.*
 
@@ -32,7 +36,7 @@ fun HomeScreen(
     onIrACrearExpediente: () -> Unit,
     onIrAAgendarCita: (Mascota) -> Unit,
     onVerDetalleExpediente: (Mascota) -> Unit,
-    onIrAAgendaDiaria: () -> Unit, // <-- 1. Callback de navegación a la agenda diaria
+    onIrAAgendaDiaria: () -> Unit,
     viewModel: HomeViewModel = viewModel()
 ) {
     // Recargar la lista cada vez que volvemos a la pantalla
@@ -70,43 +74,51 @@ fun HomeScreen(
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                Column {
-                    Text(
-                        text = "HUELLA DIGITAL",
-                        color = TextWhite,
-                        fontSize = 20.sp,
-                        fontWeight = FontWeight.Bold
-                    )
-                    Text(
-                        text = "Panel de Control Recepción",
-                        color = CyanPrimary,
-                        fontSize = 13.sp,
-                        fontWeight = FontWeight.Medium
-                    )
-                }
-
                 Row(
                     verticalAlignment = Alignment.CenterVertically,
                     horizontalArrangement = Arrangement.spacedBy(10.dp)
                 ) {
-                    // BOTÓN DE AGENDA DIARIA
-                    Box(
+                    Image(
+                        painter = painterResource(id = R.drawable.logotipo),
+                        contentDescription = "Logo Huella Digital",
                         modifier = Modifier
-                            .size(45.dp)
-                            .clip(CircleShape)
-                            .background(DarkCardBg)
-                            .border(1.5.dp, CyanPrimary, CircleShape)
-                            .clickable { onIrAAgendaDiaria() },
-                        contentAlignment = Alignment.Center
-                    ) {
-                        Icon(
-                            imageVector = Icons.Default.DateRange,
-                            contentDescription = "Ver Agenda Diaria",
-                            tint = CyanPrimary,
-                            modifier = Modifier.size(22.dp)
+                            .size(36.dp)
+                            .clip(RoundedCornerShape(8.dp)),
+                        contentScale = ContentScale.Fit
+                    )
+
+                    Column {
+                        Text(
+                            text = "HUELLA DIGITAL",
+                            color = TextWhite,
+                            fontSize = 18.sp,
+                            fontWeight = FontWeight.Bold
+                        )
+                        Text(
+                            text = "Panel de Control Recepción",
+                            color = CyanPrimary,
+                            fontSize = 12.sp,
+                            fontWeight = FontWeight.Medium
                         )
                     }
+                }
 
+                // BOTÓN DE AGENDA DIARIA
+                Box(
+                    modifier = Modifier
+                        .size(42.dp)
+                        .clip(CircleShape)
+                        .background(DarkCardBg)
+                        .border(1.5.dp, CyanPrimary, CircleShape)
+                        .clickable { onIrAAgendaDiaria() },
+                    contentAlignment = Alignment.Center
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.DateRange,
+                        contentDescription = "Ver Agenda Diaria",
+                        tint = CyanPrimary,
+                        modifier = Modifier.size(20.dp)
+                    )
                 }
             }
 
