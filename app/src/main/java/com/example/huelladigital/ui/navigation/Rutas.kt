@@ -13,5 +13,7 @@ sealed class Rutas(val ruta: String) {
 
     object AgendaDiaria : Rutas("agenda_diaria")
 
+    object Perfil : Rutas("perfil")
+
 
 }

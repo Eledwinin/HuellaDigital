@@ -98,4 +98,29 @@ class AuthRepository {
     fun cerrarSesion() {
         auth.signOut()
     }
+
+
+    // GUARDAR USUARIO EN FIRESTORE AL REGISTRARSE
+    suspend fun guardarUsuario(usuario: Usuario): Result<Unit> = try {
+        firestore.collection("usuarios")
+            .document(usuario.uid)
+            .set(usuario)
+            .await()
+        Result.success(Unit)
+    } catch (e: Exception) {
+        Result.failure(e)
+    }
+
+    //OBTENER EL PERFIL Y ROL DEL USUARIO ACTUAL
+    suspend fun obtenerUsuario(uid: String): Result<Usuario?> = try {
+        val snapshot = firestore.collection("usuarios")
+            .document(uid)
+            .get()
+            .await()
+
+        val usuario = snapshot.toObject(Usuario::class.java)
+        Result.success(usuario)
+    } catch (e: Exception) {
+        Result.failure(e)
+    }
 }

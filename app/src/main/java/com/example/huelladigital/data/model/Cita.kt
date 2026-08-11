@@ -10,5 +10,6 @@ data class Cita(
     val tipoBano: String = "",      // Solo si servicio == "Baño" y especie == "Perro"
     val fecha: String = "",
     val hora: String = "",
-    val notas: String = ""
+    val notas: String = "",
+    val estado: String = "PENDIENTE", // PENDIENTE, ACEPTADA, RECHAZADA, COMPLETADA
 )

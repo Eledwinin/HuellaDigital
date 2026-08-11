@@ -7,6 +7,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.huelladigital.data.model.Mascota
 import com.example.huelladigital.data.repository.VeterinariaRepository
+import com.google.firebase.auth.FirebaseAuth
 import kotlinx.coroutines.launch
 
 class ExpedienteViewModel(
@@ -28,6 +29,9 @@ class ExpedienteViewModel(
     var edad by mutableStateOf("")
         private set
 
+    var correoDuenio by mutableStateOf("")
+        private set
+
     var peso by mutableStateOf("")
         private set
 
@@ -45,6 +49,9 @@ class ExpedienteViewModel(
     fun onNotasChange(nuevasNotas: String) { notas = nuevasNotas }
     fun onEdadChange(nuevo: String) { edad = nuevo }
     fun onPesoChange(nuevo: String) { peso = nuevo }
+    fun onCorreoChange(nuevoCorreo: String) {
+        correoDuenio = nuevoCorreo
+    }
 
     fun guardarExpediente(onExito : () -> Unit, onError : () -> Unit){
         val nombreLimpio = nombreMascota.trim()
@@ -56,12 +63,16 @@ class ExpedienteViewModel(
             isloading = true
             mensajeError = null
 
+            val uidActual = FirebaseAuth.getInstance().currentUser?.uid ?: ""
+
             val nuevaMascota = Mascota(
+                usuarioId = uidActual,
                 especie = especieSeleccionada,
                 nombre = nombreLimpio,
                 raza = raza.trim(),
                 edad = edad.trim(),
                 peso = peso.trim(),
+                correoDuenio = correoDuenio.trim().lowercase(),
                 nombreDuenio = nombreDuenio.trim(),
                 telefonoDuenio = telefonoDuenio.trim(),
                 notasAdicionales = notas.trim()

@@ -61,6 +61,9 @@ dependencies {
     // Navegación con Jetpack Compose
     implementation("androidx.navigation:navigation-compose:2.8.5")
 
+    //para las imagenes
+    implementation("io.coil-kt:coil-compose:2.6.0")
+
     //este gestiona las versiones de Firebase automáticamente
     implementation(platform("com.google.firebase:firebase-bom:33.1.0"))
 

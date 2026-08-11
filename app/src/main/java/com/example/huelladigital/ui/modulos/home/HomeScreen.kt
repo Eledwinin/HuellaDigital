@@ -13,6 +13,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.DateRange
+import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
@@ -33,6 +34,7 @@ import com.example.huelladigital.ui.theme.*
 
 @Composable
 fun HomeScreen(
+    onIrAPerfil: () -> Unit,
     onIrACrearExpediente: () -> Unit,
     onIrAAgendarCita: (Mascota) -> Unit,
     onVerDetalleExpediente: (Mascota) -> Unit,
@@ -47,26 +49,27 @@ fun HomeScreen(
     Scaffold(
         containerColor = DarkBackground,
         floatingActionButton = {
-            FloatingActionButton(
-                onClick = onIrACrearExpediente,
-                containerColor = CyanPrimary,
-                contentColor = DarkBackground,
-                shape = CircleShape,
-                modifier = Modifier.size(60.dp)
-            ) {
-                Icon(
-                    imageVector = Icons.Default.Add,
-                    contentDescription = "Nuevo Expediente",
-                    modifier = Modifier.size(32.dp)
-                )
+            // Solo el personal administrativo puede crear nuevos expedientes
+            if (viewModel.esAdmin) {
+                FloatingActionButton(
+                    onClick = onIrACrearExpediente,
+                    containerColor = CyanPrimary,
+                    contentColor = DarkBackground
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.Add,
+                        contentDescription = "Nuevo Expediente"
+                    )
+                }
             }
+
         }
     ) { innerPadding ->
         Column(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(innerPadding)
-                .padding(horizontal = 20.dp, vertical = 16.dp)
+                .padding(horizontal = 20.dp, vertical = 8.dp)
         ) {
             // ENCABEZADO PERSONALIZADO
             Row(
@@ -103,26 +106,27 @@ fun HomeScreen(
                     }
                 }
 
-                // BOTÓN DE AGENDA DIARIA
-                Box(
-                    modifier = Modifier
-                        .size(42.dp)
-                        .clip(CircleShape)
-                        .background(DarkCardBg)
-                        .border(1.5.dp, CyanPrimary, CircleShape)
-                        .clickable { onIrAAgendaDiaria() },
-                    contentAlignment = Alignment.Center
-                ) {
-                    Icon(
-                        imageVector = Icons.Default.DateRange,
-                        contentDescription = "Ver Agenda Diaria",
-                        tint = CyanPrimary,
-                        modifier = Modifier.size(20.dp)
-                    )
+                if (viewModel.esAdmin) {
+                    Box(
+                        modifier = Modifier
+                            .size(42.dp)
+                            .clip(CircleShape)
+                            .background(DarkCardBg)
+                            .border(1.5.dp, CyanPrimary, CircleShape)
+                            .clickable { onIrAAgendaDiaria() },
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.DateRange,
+                            contentDescription = "Ver Agenda Diaria",
+                            tint = CyanPrimary,
+                            modifier = Modifier.size(20.dp)
+                        )
+                    }
                 }
             }
 
-            Spacer(modifier = Modifier.height(20.dp))
+            Spacer(modifier = Modifier.height(12.dp))
 
             // Espacio para escribir la búsqueda
             OutlinedTextField(

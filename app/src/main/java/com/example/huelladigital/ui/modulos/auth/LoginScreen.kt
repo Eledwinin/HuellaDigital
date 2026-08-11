@@ -33,7 +33,7 @@ import com.example.huelladigital.R
 
 @Composable
 fun LoginScreen(
-    onLoginSuccess: () -> Unit,
+    onLoginSuccess: (rol: String) -> Unit,
     onNavigateToRegister: () -> Unit,
     onNavigateToForgotPassword: () -> Unit,
     viewModel: LoginViewModel = viewModel()
@@ -235,7 +235,7 @@ fun LoginScreen(
 
                     // boton para acceder
                     Button(
-                        onClick = { viewModel.loginConEmail(onExito = { onLoginSuccess() }) },
+                        onClick = { viewModel.loginConEmail(onExito = { rol -> onLoginSuccess(rol) }) },
                         modifier = Modifier
                             .fillMaxWidth()
                             .height(50.dp),
@@ -289,7 +289,7 @@ fun LoginScreen(
 
                     // BOTÓN SECUNDARIO: GOOGLE
                     OutlinedButton(
-                        onClick = { viewModel.loginConGoogle(context = context, onExito = { onLoginSuccess() })},
+                        onClick = { viewModel.loginConGoogle(context = context, onExito = { rol -> onLoginSuccess(rol) })},
                         modifier = Modifier
                             .fillMaxWidth()
                             .height(48.dp),

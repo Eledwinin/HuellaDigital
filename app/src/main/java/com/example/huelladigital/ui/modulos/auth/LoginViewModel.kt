@@ -9,6 +9,8 @@ import androidx.credentials.CredentialManager
 import androidx.credentials.CustomCredential
 import androidx.credentials.GetCredentialRequest
 import androidx.lifecycle.ViewModel
+import com.google.firebase.auth.FirebaseAuth
+import com.example.huelladigital.data.model.Usuario
 import androidx.lifecycle.viewModelScope
 import com.example.huelladigital.data.repository.AuthRepository
 import com.google.android.libraries.identity.googleid.GetGoogleIdOption
@@ -43,10 +45,10 @@ class LoginViewModel(
         error = null
     }
 
-    fun loginConEmail(onExito: () -> Unit) {
+    fun loginConEmail(onExito: (rol: String) -> Unit) {
         val correoLimpio = correo.trim()
 
-        // 1. Validaciones locales
+        // validaciones locales
         if (correoLimpio.isBlank() || clave.isBlank()) {
             error = "Por favor, ingresa tu correo y contraseña"
             return
@@ -57,18 +59,30 @@ class LoginViewModel(
             return
         }
 
-        // 2. Petición a Firebase Auth
+        // petición a Firebase Auth
         viewModelScope.launch {
             isloading = true
             error = null
 
-            val resultado = authRepository.loginConEmail(correoLimpio, clave)
+            val resultadoAuth = authRepository.loginConEmail(correoLimpio, clave)
 
-            isloading = false
+            resultadoAuth.onSuccess { firebaseUser ->
+                val uid = firebaseUser?.uid ?: FirebaseAuth.getInstance().currentUser?.uid ?: ""
 
-            resultado.onSuccess {
-                onExito()
+                // Consultamos el rol en Firestore
+                authRepository.obtenerUsuario(uid)
+                    .onSuccess { usuario ->
+                        isloading = false
+                        val rolEncontrado = usuario?.rol?.trim() ?: "Cliente"
+                        onExito(rolEncontrado)
+                    }
+                    .onFailure {
+                        isloading = false
+                        // si falla leer Firestore pero se autenticó, se asigna Cliente por defecto
+                        onExito("Cliente")
+                    }
             }.onFailure { excepcion ->
+                isloading = false
                 error = when (excepcion) {
                     is FirebaseAuthInvalidUserException -> "No existe ninguna cuenta con este correo"
                     is FirebaseAuthInvalidCredentialsException -> "Contraseña incorrecta o correo inválido"
@@ -79,15 +93,13 @@ class LoginViewModel(
     }
 
     //-------------------------------fun para iniciar sesion con google
-    fun loginConGoogle(context: Context, onExito: () -> Unit) {
+    fun loginConGoogle(context: Context, onExito: (rol: String) -> Unit) {
         viewModelScope.launch {
             isloading = true
             error = null
 
             try {
                 val credentialManager = CredentialManager.create(context)
-
-                // NOTA: Reemplaza esta cadena con tu Web Client ID de google-services.json
                 val webClientId = "453401379267-71pb3jr55lq1i3jior4hmrf6s4rav7dd.apps.googleusercontent.com"
 
                 val googleIdOption = GetGoogleIdOption.Builder()
@@ -107,15 +119,34 @@ class LoginViewModel(
                     val googleIdTokenCredential = GoogleIdTokenCredential.createFrom(credential.data)
                     val idToken = googleIdTokenCredential.idToken
 
-                    // Mandamos el token a Firebase
-                    val resultado = authRepository.loginConGoogle(idToken)
+                    val resultadoAuth = authRepository.loginConGoogle(idToken)
 
-                    isloading = false
+                    resultadoAuth.onSuccess { firebaseUser ->
+                        val userActual = firebaseUser ?: FirebaseAuth.getInstance().currentUser
+                        val uid = userActual?.uid ?: ""
 
-                    resultado.onSuccess {
-                        onExito()
-                    }.onFailure { ex ->
-                        error = ex.localizedMessage ?: "Error al autenticar con Firebase"
+                        // Verificamos si ya existe el usuario en Firestore
+                        authRepository.obtenerUsuario(uid)
+                            .onSuccess { usuario ->
+                                if (usuario == null) {
+                                    val nuevoUsuario = Usuario(
+                                        uid = uid,
+                                        nombre = userActual?.displayName ?: "Usuario Google",
+                                        correo = userActual?.email ?: "",
+                                        rol = "Cliente"
+                                    )
+                                    authRepository.guardarUsuario(nuevoUsuario)
+                                    isloading = false
+                                    onExito("Cliente")
+                                } else {
+                                    isloading = false
+                                    onExito(usuario.rol)
+                                }
+                            }
+                            .onFailure {
+                                isloading = false
+                                onExito("Cliente")
+                            }
                     }
                 } else {
                     isloading = false

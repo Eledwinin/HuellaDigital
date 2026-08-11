@@ -38,6 +38,16 @@ class VeterinariaRepository(
             Result.failure(e)
         }
     }
+    // obtener todas las mascotas de Firestore
+    suspend fun obtenerMascotas(): Result<List<Mascota>> {
+        return try {
+            val snapshot = mascotasCollection.get().await()
+            val lista = snapshot.toObjects(Mascota::class.java)
+            Result.success(lista)
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
+    }
 
     // guardar una nueva cita
     suspend fun agendarCita(cita: Cita): Result<Boolean> {
@@ -103,6 +113,7 @@ class VeterinariaRepository(
             Result.failure(e)
         }
     }
+
 
 
 }

@@ -296,6 +296,13 @@ fun CrearExpedienteScreen(
                             viewModel.onTelefonoChange(telefonoFormateado)
                         }
                     )
+                    //correo del dueño
+                    CampoTextoExpediente(
+                        etiqueta = "CORREO DEL DUEÑO",
+                        valor = viewModel.correoDuenio,
+                        placeholder = "Ej. john.quincy.adams@examplepetstore.com",
+                        onValueChange = { viewModel.onCorreoChange(it) }
+                    )
 
                     // Información adicional
                     CampoTextoExpediente(
