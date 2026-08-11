@@ -6,10 +6,12 @@ data class Cita(
     val nombreMascota: String = "",
     val especie: String = "",
     val nombreDuenio: String = "",
+    val correoDuenio: String = "",
     val servicio: String = "",       // "Consulta", "Vacunación", "Baño", etc.
     val tipoBano: String = "",      // Solo si servicio == "Baño" y especie == "Perro"
     val fecha: String = "",
     val hora: String = "",
     val notas: String = "",
+    val motivo: String = "",
     val estado: String = "PENDIENTE", // PENDIENTE, ACEPTADA, RECHAZADA, COMPLETADA
 )

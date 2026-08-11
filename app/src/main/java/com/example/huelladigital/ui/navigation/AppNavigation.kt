@@ -7,6 +7,7 @@ import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -14,24 +15,47 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
+import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.example.huelladigital.data.model.Mascota
+import com.example.huelladigital.data.repository.AuthRepository
 import com.example.huelladigital.ui.componentes.AppBottomBar
 import com.example.huelladigital.ui.modulos.auth.ForgotPasswordScreen
 import com.example.huelladigital.ui.modulos.auth.LoginScreen
 import com.example.huelladigital.ui.modulos.auth.RegistroScreen
 import com.example.huelladigital.ui.modulos.citas.AgendaDiariaScreen
 import com.example.huelladigital.ui.modulos.citas.AgendarCitaScreen
+import com.example.huelladigital.ui.modulos.citas.SolicitudesScreen
 import com.example.huelladigital.ui.modulos.expediente.CrearExpedienteScreen
 import com.example.huelladigital.ui.modulos.expediente.DetalleExpedienteScreen
 import com.example.huelladigital.ui.modulos.home.HomeScreen
 import com.example.huelladigital.ui.modulos.perfil.PerfilScreen
 import com.example.huelladigital.ui.theme.DarkBackground
+import com.google.firebase.auth.FirebaseAuth
 
 @Composable
-fun AppNavigation(esAdmin: Boolean = false) {
+fun AppNavigation() {
     val navController = rememberNavController()
     var mascotaParaCita by remember { mutableStateOf<Mascota?>(null) }
+
+    // estado dinámico del rol
+    var esAdmin by remember { mutableStateOf(false) }
+    val authRepository = remember { AuthRepository() }
+
+    // escucha el usuario actual para determinar su rol automáticamente
+    LaunchedEffect(navController.currentBackStackEntryAsState().value) {
+        val uid = FirebaseAuth.getInstance().currentUser?.uid ?: ""
+        if (uid.isNotBlank()) {
+            authRepository.obtenerUsuario(uid).onSuccess { datos ->
+                val rol = datos?.rol?.lowercase() ?: ""
+                esAdmin = rol.contains("admin") ||
+                        rol.contains("veterinario") ||
+                        rol.contains("recepcionista")
+            }
+        } else {
+            esAdmin = false
+        }
+    }
 
     Scaffold(
         containerColor = DarkBackground,
@@ -197,6 +221,13 @@ fun AppNavigation(esAdmin: Boolean = false) {
                             popUpTo(Rutas.Login.ruta) { inclusive = true }
                         }
                     }
+                )
+            }
+
+            //ruta para ver las solicitudes de citas
+            composable(Rutas.Solicitudes.ruta) {
+                SolicitudesScreen(
+                    onVolver = { navController.popBackStack() }
                 )
             }
         }

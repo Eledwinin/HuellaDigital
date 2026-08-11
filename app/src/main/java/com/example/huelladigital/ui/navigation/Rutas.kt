@@ -15,5 +15,7 @@ sealed class Rutas(val ruta: String) {
 
     object Perfil : Rutas("perfil")
 
+    object Solicitudes : Rutas("solicitudes")
+
 
 }

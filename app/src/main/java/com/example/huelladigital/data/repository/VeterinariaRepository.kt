@@ -114,6 +114,18 @@ class VeterinariaRepository(
         }
     }
 
+    // cambia el estado de una cita (PENDIENTE, ACEPTADA, RECHAZADA)
+    suspend fun actualizarEstadoCita(citaId: String, nuevoEstado: String): Result<Boolean> {
+        return try {
+            citasCollection.document(citaId)
+                .update("estado", nuevoEstado)
+                .await()
+            Result.success(true)
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
+    }
+
 
 
 }

@@ -7,20 +7,21 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.huelladigital.data.model.Cita
 import com.example.huelladigital.data.model.Mascota
+import com.example.huelladigital.data.repository.AuthRepository
 import com.example.huelladigital.data.repository.VeterinariaRepository
+import com.google.firebase.auth.FirebaseAuth
 import kotlinx.coroutines.launch
-import java.time.LocalTime
-import java.time.format.DateTimeFormatterBuilder
-import java.util.Locale
 
 class CitasViewModel(
-    private val repository: VeterinariaRepository = VeterinariaRepository()
+    private val repository: VeterinariaRepository = VeterinariaRepository(),
+    private val authRepository: AuthRepository = AuthRepository()
 ) : ViewModel() {
+
     var mascotaSeleccionada by mutableStateOf<Mascota?>(null)
         private set
-    var servicioSeleccionado by mutableStateOf("Consulta General") //aqui habra consulta general, vacuna, baño, desparacitacion
+    var servicioSeleccionado by mutableStateOf("Consulta General")
         private set
-    var tipoBanoSeleccionado by mutableStateOf("Baño básico") //habran 4 opciones
+    var tipoBanoSeleccionado by mutableStateOf("Baño básico")
         private set
     var fecha by mutableStateOf("")
         private set
@@ -33,7 +34,6 @@ class CitasViewModel(
     var mensajeError by mutableStateOf<String?>(null)
         private set
 
-    //esto es para los servicios de baño para perros nada más
     val opcionesBanoPerro = listOf(
         "Baño básico",
         "Baño con recorte de uñas",
@@ -48,7 +48,6 @@ class CitasViewModel(
     fun onHoraChange(nuevaHora: String) { hora = nuevaHora }
     fun onNotasChange(nuevasNotas: String) { notas = nuevasNotas }
 
-    //para evaluar la regla que el baño sea para perrones
     val esBanoPerro: Boolean
         get() = servicioSeleccionado == "Baño" && mascotaSeleccionada?.especie.equals("Perro", ignoreCase = true)
 
@@ -68,28 +67,43 @@ class CitasViewModel(
             isloading = true
             mensajeError = null
 
-            // 1. Consultamos directo a Firestore cuántas citas hay a esa hora exacta
+            val userActual = FirebaseAuth.getInstance().currentUser
+            val uid = userActual?.uid ?: ""
+
+            var esAdmin = false
+            if (uid.isNotBlank()) {
+                authRepository.obtenerUsuario(uid).onSuccess { u ->
+                    val rol = u?.rol?.lowercase() ?: ""
+                    esAdmin = rol.contains("admin") || rol.contains("veterinario") || rol.contains("recepcionista")
+                }
+            }
+
+
             val resultadoConteo = repository.contarCitasEnHorario(fecha.trim(), hora.trim())
 
             resultadoConteo.onSuccess { totalCitas ->
-                // Si ya hay 3 o más citas registradas a esa misma hora exacta, lo bloqueamos
                 if (totalCitas >= 3) {
                     isloading = false
                     mensajeError = "⚠️ Horario saturado. Ya existen 3 citas agendadas exactamente a las $hora. Selecciona otra hora."
                     return@launch
                 }
 
-                // 2. Si hay menos de 3, guardamos la nueva cita
+                val estadoInicial = if (esAdmin) "ACEPTADA" else "PENDIENTE"
+
+
                 val nuevaCita = Cita(
                     mascotaId = mascota.id,
                     nombreMascota = mascota.nombre,
                     especie = mascota.especie,
                     nombreDuenio = mascota.nombreDuenio,
+                    correoDuenio = mascota.correoDuenio,
                     servicio = servicioSeleccionado,
                     tipoBano = if (esBanoPerro) tipoBanoSeleccionado else "",
                     fecha = fecha.trim(),
                     hora = hora.trim(),
-                    notas = notas.trim()
+                    motivo = if (servicioSeleccionado == "Baño") "Baño: $tipoBanoSeleccionado" else servicioSeleccionado,
+                    notas = notas.trim(),
+                    estado = estadoInicial, // <-- ACEPTADA o PENDIENTE
                 )
 
                 val resultadoGuardar = repository.agendarCita(nuevaCita)
