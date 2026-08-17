@@ -69,7 +69,7 @@
 
 ---
 
-##Recursos y Pasos para la Ejecución
+###Recursos y Pasos para la Ejecución
 
 ### Requisitos Previos:
 * **Android Studio:** Hedgehog (2023.1.1) o superior.
