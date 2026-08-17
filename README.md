@@ -1,6 +1,6 @@
 # Huella Digital - Recepción Veterinaria
 
-**Huella Digital** es una aplicación móvil nativa para Android desarrollada en **Kotlin** y **Jetpack Compose**, orientada a la gestión eficiente de recepciones en clínicas veterinarias. Permite administrar expedientes médicos de pacientes (perros, gatos, conejos), controlar datos de contacto de propietarios y gestionar el agendamiento e historial de citas en tiempo real con Firebase Firestore.
+**Huella Digital** Huella Digital es una aplicación móvil nativa para Android desarrollada en Kotlin y Jetpack Compose, diseñada tanto para la gestión administrativa de clínicas veterinarias como para el autoservicio de los propietarios de mascotas. Permite administrar expedientes clínicos, gestionar citas con control de cupos en tiempo real, filtrar historiales y manejar flujos de aprobación o reprogramación mediante Firebase.
 
 ------
 
@@ -16,53 +16,72 @@
 
 * **Lenguaje:** Kotlin
 * **Interfaz de Usuario:** Jetpack Compose (Material Design 3)
-* **Arquitectura:** MVVM (Model-View-ViewModel)
+* **Arquitectura:** MVVM (Model-View-ViewModel) + Repository Pattern
+* **Autenticación:** Firebase Authentication (Correo/Contraseña y Google Sign-In con Credential Manager)
 * **Base de Datos:** Firebase Cloud Firestore (Sincronización en tiempo real)
-* **Navegación:** Jetpack Navigation Compose
-* **Asincronía:** Corrutinas de Kotlin y `StateFlow`
+* **Navegación:** Jetpack Navigation Compose (Transiciones y animaciones personalizadas)
+* **Asincronía y Estado:** Corrutinas de Kotlin, `State` y `StateFlow`
 
 ----
 
 ## Manual de Usuario
 
-### 1. Inicio de Sesión
-* Al abrir la aplicación, ingrese con las credenciales asignadas para el personal de recepción de la clínica.
-* Al autenticarse correctamente, el sistema redirigirá al **Panel de Control**.
-* ////
-* De otro modo, puede iniciar sesión con una cuenta oficial de la veterinaria
+### 1. Acceso y Registro
+* **Inicio de Sesión:** Ingrese su correo y contraseña o presione **Continuar con Google**. El sistema detectará su rol automáticamente y lo enviará al panel correspondiente.
+* **Recuperación de Cuenta:** Si olvidó su contraseña, use la opción *¿Olvidaste tu contraseña?* para recibir un enlace de restablecimiento en su correo.
+* **Registro de Cliente:** Presione *Crea tu Cuenta*, complete sus datos y confirme su contraseña para habilitar su acceso.
 
-### 2. Panel de Control (Pantalla Principal)
-* **Búsqueda:** Utilice la barra superior para buscar expedientes ingresando el nombre de la mascota, el nombre del dueño o el código correlativo (`EXP-XXX`).
-* **Filtros rápidos:** Filtre los pacientes por especie seleccionando los chips: *Todos*, *Perros*, *Gatos* o *Conejos*.
-* **Agenda Diaria:** Presione el icono de calendario en la esquina superior derecha para ver todas las citas del día actual.
+---
 
-### 3. Registro de Nuevo Expediente
-1. Presione el botón flotante con el icono **`+`**.
-2. Seleccione la especie correspondiente (*Perro*, *Gato* o *Conejo*).
-3. Complete la información obligatoria: Nombre de la mascota, Raza, Nombre del dueño y Teléfono de contacto (validado a 8 dígitos).
-4. Ingrese opcionalmente la edad (seleccionando la unidad en **Años** o **Meses**) y el peso (restringido a valores numéricos con hasta 2 decimales en **lbs**).
-5. Presione **Guardar Expediente**.
+### 2. Módulo de Recepción y Administración (Personal Clínico)
 
-### 4. Expediente Clínico e Historial de Citas
-* Al presionar cualquier tarjeta del paciente, accederá a su **Expediente Clínico**.
-* **Edición / Eliminación:** En el panel superior puede editar los datos o eliminar el expediente mediante los iconos de lápiz y basurero.
-* **Historial:** Visualice las citas clasificadas automáticamente como **PENDIENTE** o **FINALIZADO** según la fecha y hora programada.
+* **Búsqueda y Filtro de Pacientes:** En la pantalla principal, busque pacientes por nombre de la mascota, dueño o correlativo (`EXP-XXX`). También puede filtrar rápidamente por especie tocando los chips (*Todos*, *Perros*, *Gatos*, *Conejos*).
+* **Crear un Expediente:**
+  1. Presione el botón flotante **`+`**.
+  2. Seleccione la especie correspondiente.
+  3. Ingrese los datos obligatorios (Nombre, Raza, Dueño y Teléfono de 8 dígitos).
+  4. Opcionalmente registre peso (en libras) y edad (meses o años).
+  5. Presione **Guardar Expediente**.
+* **Gestión del Expediente:** Toque la tarjeta de cualquier paciente para ver su ficha médica completa, editar sus datos o eliminar el registro.
+* **Control de Solicitudes Entrantes:**
+  1. Ingrese a la pestaña de **Solicitudes**.
+  2. Revise las citas en espera y presione **Aceptar** para confirmar o **Rechazar**.
+  3. Si rechaza, seleccione el motivo en el diálogo emergente para informar al dueño.
+* **Agenda Diaria y Control de Asistencia:**
+  1. Desde la barra inferior, acceda a **Agenda**.
+  2. Use las flechas de navegación para consultar citas por fecha.
+  3. En cada cita aceptada del día, marque **ATENDIDA** si el cliente asistió o **NO ASISTIÓ** si faltó.
 
-### 5. Agendamiento de Citas
-1. Desde la tarjeta de la mascota o dentro de su expediente, presione **Agendar Cita**.
-2. Seleccione el tipo de servicio (*Consulta Médica*, *Vacunación*, *Desparasitación*, *Corte de Uñas*, *Baño y Estética*, etc.).
-3. Si selecciona *Baño*, elija la modalidad (*Básico*, *Medicada*, *Antipulgas*, *Corte Sanitario*).
-4. Seleccione la fecha y la hora deseada y confirme el agendamiento.
+---
 
-----
+### 3. Módulo de Clientes (Dueños de Mascotas)
+
+* **Agendar una Cita:**
+  1. Seleccione a su mascota desde el inicio y toque **Agendar Cita**.
+  2. Elija el servicio requerido (Consulta, Vacunación, Desparasitación, etc.) y la modalidad si aplica (ej. tipo de baño).
+  3. Seleccione fecha, horario disponible y confirme el envío.
+* **Seguimiento en "Mis Citas":**
+  * **Próximas:** Consulte las citas aceptadas para fechas vigentes o futuras.
+  * **Pendientes:** Revise las solicitudes en espera de confirmación.
+  * **Rechazadas:** Si una cita fue rechazada, revise el motivo del personal y toque **REPROGRAMAR CITA** para elegir un nuevo horario sin llenar todo otra vez.
+  * **Historial:** Consulte el registro de consultas pasadas, citas atendidas y ausencias.
+* **Filtro por Mascota:** En la parte superior de *Mis Citas*, toque el nombre de cualquiera de sus mascotas para ver solo su historial individual.
+
+---
 
 ##Recursos y Pasos para la Ejecución
 
 ### Requisitos Previos:
 * **Android Studio:** Hedgehog (2023.1.1) o superior.
-* **JDK:** versión 17 o superior.
+* **JDK:** Versión 17 o superior.
 * **Dispositivo físico o emulador:** Android 8.0 (API Nivel 26) o superior.
-* Conexión a Internet (necesaria para la sincronización con Firebase Firestore).
+* **Servicios de Google:** Archivo `google-services.json` configurado en el directorio `/app`.
+
+### Configuración de Firebase (Para nuevos entornos):
+1. Crea un proyecto en la consola de [Firebase](https://console.firebase.google.com/).
+2. Habilita **Firebase Authentication** (Email/Password y Google) y **Cloud Firestore**.
+3. Descarga el archivo `google-services.json` desde la configuración del proyecto en Firebase.
+4. Pega el archivo en la ruta `app/google-services.json` de este proyecto antes de compilar.
 
 ### Pasos para clonar y ejecutar:
 
