@@ -9,6 +9,8 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Pets
+import androidx.compose.material.icons.filled.Visibility
+import androidx.compose.material.icons.filled.VisibilityOff
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -19,6 +21,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
+import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -38,8 +41,9 @@ fun LoginScreen(
     onNavigateToForgotPassword: () -> Unit,
     viewModel: LoginViewModel = viewModel()
 ) {
-
     val context = LocalContext.current
+    var claveVisible by remember { mutableStateOf(false) }
+
     Box(
         modifier = Modifier
             .fillMaxSize()
@@ -65,7 +69,6 @@ fun LoginScreen(
                 .alpha(0.06f)
         )
 
-
         Column(
             modifier = Modifier
                 .fillMaxSize()
@@ -74,8 +77,6 @@ fun LoginScreen(
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center
         ) {
-
-
             Surface(
                 modifier = Modifier.size(150.dp),
                 shape = RoundedCornerShape(50.dp),
@@ -92,7 +93,6 @@ fun LoginScreen(
             }
 
             Spacer(modifier = Modifier.height(16.dp))
-
 
             Text(
                 text = "HUELLA DIGITAL",
@@ -112,7 +112,6 @@ fun LoginScreen(
 
             Spacer(modifier = Modifier.height(28.dp))
 
-            // formulario login
             Card(
                 modifier = Modifier.fillMaxWidth(),
                 shape = RoundedCornerShape(24.dp),
@@ -139,7 +138,6 @@ fun LoginScreen(
                         modifier = Modifier.padding(top = 4.dp, bottom = 20.dp)
                     )
 
-                    // Campo: correo
                     Text(
                         text = "CORREO ELECTRÓNICO",
                         color = CyanPrimary,
@@ -172,7 +170,6 @@ fun LoginScreen(
 
                     Spacer(modifier = Modifier.height(16.dp))
 
-                    // campo: contra
                     Text(
                         text = "CONTRASEÑA",
                         color = CyanPrimary,
@@ -188,7 +185,19 @@ fun LoginScreen(
                         modifier = Modifier.fillMaxWidth(),
                         placeholder = { Text("••••••••••••••••", color = TextSecondary.copy(alpha = 0.5f)) },
                         singleLine = true,
-                        visualTransformation = PasswordVisualTransformation(),
+                        visualTransformation = if (claveVisible) VisualTransformation.None else PasswordVisualTransformation(),
+                        trailingIcon = {
+                            val imagen = if (claveVisible) Icons.Filled.Visibility else Icons.Filled.VisibilityOff
+                            val descripcion = if (claveVisible) "Ocultar contraseña" else "Mostrar contraseña"
+
+                            IconButton(onClick = { claveVisible = !claveVisible }) {
+                                Icon(
+                                    imageVector = imagen,
+                                    contentDescription = descripcion,
+                                    tint = TextSecondary
+                                )
+                            }
+                        },
                         shape = RoundedCornerShape(12.dp),
                         colors = OutlinedTextFieldDefaults.colors(
                             focusedContainerColor = InputBackground,
@@ -204,7 +213,6 @@ fun LoginScreen(
                         )
                     )
 
-                    // ¿Olvidaste tu contraseña?
                     Box(
                         modifier = Modifier
                             .fillMaxWidth()
@@ -219,7 +227,6 @@ fun LoginScreen(
                         )
                     }
 
-                    // Mensaje de Error
                     viewModel.error?.let { error ->
                         Spacer(modifier = Modifier.height(10.dp))
                         Text(
@@ -233,7 +240,6 @@ fun LoginScreen(
 
                     Spacer(modifier = Modifier.height(20.dp))
 
-                    // boton para acceder
                     Button(
                         onClick = { viewModel.loginConEmail(onExito = { rol -> onLoginSuccess(rol) }) },
                         modifier = Modifier
@@ -264,7 +270,6 @@ fun LoginScreen(
 
                     Spacer(modifier = Modifier.height(16.dp))
 
-                    //linea que divide el continuar con
                     Row(
                         modifier = Modifier.fillMaxWidth(),
                         verticalAlignment = Alignment.CenterVertically
@@ -287,9 +292,8 @@ fun LoginScreen(
 
                     Spacer(modifier = Modifier.height(16.dp))
 
-                    // BOTÓN SECUNDARIO: GOOGLE
                     OutlinedButton(
-                        onClick = { viewModel.loginConGoogle(context = context, onExito = { rol -> onLoginSuccess(rol) })},
+                        onClick = { viewModel.loginConGoogle(context = context, onExito = { rol -> onLoginSuccess(rol) }) },
                         modifier = Modifier
                             .fillMaxWidth()
                             .height(48.dp),
@@ -307,12 +311,10 @@ fun LoginScreen(
 
                     Spacer(modifier = Modifier.height(16.dp))
 
-                    // FOOTER: Crear Cuenta
                     Row(
                         modifier = Modifier.fillMaxWidth(),
                         horizontalArrangement = Arrangement.Center
                     ) {
-
                         Text(
                             text = "Crea tu Cuenta",
                             color = AccentPink,

@@ -13,5 +13,6 @@ data class Cita(
     val hora: String = "",
     val notas: String = "",
     val motivo: String = "",
+    val motivoRechazo: String = "",
     val estado: String = "PENDIENTE", // PENDIENTE, ACEPTADA, RECHAZADA, COMPLETADA
 )

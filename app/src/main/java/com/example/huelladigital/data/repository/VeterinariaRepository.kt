@@ -127,5 +127,54 @@ class VeterinariaRepository(
     }
 
 
+    //para motivo de rechazo
+    suspend fun actualizarEstadoCita(
+        citaId: String,
+        nuevoEstado: String,
+        motivoRechazo: String = ""
+    ): Result<Boolean> {
+        return try {
+            val updates = mutableMapOf<String, Any>(
+                "estado" to nuevoEstado
+            )
+            if (motivoRechazo.isNotBlank()) {
+                updates["motivoRechazo"] = motivoRechazo
+            }
+            citasCollection.document(citaId)
+                .update(updates)
+                .await()
+            Result.success(true)
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
+    }
+
+    suspend fun reprogramarCita(
+        citaId: String,
+        nuevaFecha: String,
+        nuevaHora: String,
+        nuevasNotas: String = ""
+    ): Result<Boolean> {
+        return try {
+            val updates = mutableMapOf<String, Any>(
+                "fecha" to nuevaFecha.trim(),
+                "hora" to nuevaHora.trim(),
+                "estado" to "PENDIENTE",
+                "motivoRechazo" to "", // Limpiamos el motivo de rechazo anterior
+                "fechaCreacion" to System.currentTimeMillis() // Se actualiza para que suba arriba en pendientes
+            )
+            if (nuevasNotas.isNotBlank()) {
+                updates["notas"] = nuevasNotas.trim()
+            }
+            citasCollection.document(citaId)
+                .update(updates)
+                .await()
+            Result.success(true)
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
+    }
+
+
 
 }

@@ -18,7 +18,7 @@ class SolicitudesViewModel(
     var listaSolicitudes by mutableStateOf<List<Cita>>(emptyList())
         private set
 
-    var filtroSeleccionado by mutableStateOf("PENDIENTES") // "TODAS", "PENDIENTES", "ACEPTADAS", "RECHAZADAS"
+    var filtroSeleccionado by mutableStateOf("PENDIENTES")
         private set
 
     var cargando by mutableStateOf(true)
@@ -53,9 +53,9 @@ class SolicitudesViewModel(
         }
     }
 
-    fun responderSolicitud(citaId: String, nuevoEstado: String) {
+    fun responderSolicitud(citaId: String, nuevoEstado: String, motivoRechazo: String = "") {
         viewModelScope.launch {
-            repository.actualizarEstadoCita(citaId, nuevoEstado).onSuccess {
+            repository.actualizarEstadoCita(citaId, nuevoEstado, motivoRechazo).onSuccess {
                 cargarSolicitudes()
             }
         }
