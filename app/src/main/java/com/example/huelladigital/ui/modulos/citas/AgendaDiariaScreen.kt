@@ -17,7 +17,6 @@ import androidx.compose.material.icons.automirrored.filled.KeyboardArrowLeft
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
 import androidx.compose.material.icons.filled.DateRange
 import androidx.compose.material.icons.filled.EditCalendar
-import androidx.compose.material.icons.filled.Pets
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -50,6 +49,7 @@ fun AgendaDiariaScreen(
     val esAdmin = viewModel.esAdmin
     val filtroCliente = viewModel.filtroClienteSeleccionado
     val citas = viewModel.citasDelDia
+    val mapaMascotas = viewModel.mapaMascotas
 
     var citaAReprogramar by remember { mutableStateOf<Cita?>(null) }
 
@@ -143,7 +143,6 @@ fun AgendaDiariaScreen(
                     }
                 }
             } else {
-                // 1. FILTRO DE ESTADOS (PRÓXIMAS, PENDIENTES, RECHAZADAS, HISTORIAL)
                 Row(
                     modifier = Modifier
                         .fillMaxWidth()
@@ -180,7 +179,6 @@ fun AgendaDiariaScreen(
                     }
                 }
 
-                // 2. FILTRO POR MASCOTA DEL CLIENTE (TODAS, PEPITO, PEPITON, ETC.)
                 if (viewModel.misMascotas.isNotEmpty()) {
                     LazyRow(
                         modifier = Modifier
@@ -264,8 +262,10 @@ fun AgendaDiariaScreen(
                     verticalArrangement = Arrangement.spacedBy(12.dp)
                 ) {
                     items(citas) { cita ->
+                        val mascotaAsociada = mapaMascotas[cita.mascotaId]
                         ItemCitaAgenda(
                             cita = cita,
+                            mascota = mascotaAsociada,
                             esAdmin = esAdmin,
                             onReprogramar = { citaAReprogramar = cita },
                             onMarcarCompletada = { viewModel.actualizarEstadoFinalCita(cita.id, "COMPLETADA") },
@@ -306,27 +306,43 @@ fun DialogoReprogramarCita(
 
     var fechaSeleccionada by remember { mutableStateOf(cita.fecha) }
     var horaSeleccionada by remember { mutableStateOf(cita.hora) }
+    var errorValidacion by remember { mutableStateOf<String?>(null) }
 
     val datePicker = DatePickerDialog(
         contexto,
         { _, anio, mes, dia ->
-            val d = dia.toString().padStart(2, '0')
-            val m = (mes + 1).toString().padStart(2, '0')
-            fechaSeleccionada = "$d/$m/$anio"
+            val calElegido = Calendar.getInstance().apply {
+                set(anio, mes, dia)
+            }
+            if (calElegido.get(Calendar.DAY_OF_WEEK) == Calendar.SUNDAY) {
+                errorValidacion = "No se agendan citas en domingo"
+            } else {
+                errorValidacion = null
+                val d = dia.toString().padStart(2, '0')
+                val m = (mes + 1).toString().padStart(2, '0')
+                fechaSeleccionada = "$d/$m/$anio"
+            }
         },
         cal.get(Calendar.YEAR),
         cal.get(Calendar.MONTH),
         cal.get(Calendar.DAY_OF_MONTH)
-    )
+    ).apply {
+        datePicker.minDate = System.currentTimeMillis() - 1000
+    }
 
     val timePicker = TimePickerDialog(
         contexto,
         { _, hora, minuto ->
-            val amPm = if (hora >= 12) "PM" else "AM"
-            val hora12 = if (hora == 0) 12 else if (hora > 12) hora - 12 else hora
-            val m = minuto.toString().padStart(2, '0')
-            val h = hora12.toString().padStart(2, '0')
-            horaSeleccionada = "$h:$m $amPm"
+            if (hora < 7 || hora >= 18) {
+                errorValidacion = "Horario disponible de 07:00 AM a 06:00 PM"
+            } else {
+                errorValidacion = null
+                val amPm = if (hora >= 12) "PM" else "AM"
+                val hora12 = if (hora == 0) 12 else if (hora > 12) hora - 12 else hora
+                val m = minuto.toString().padStart(2, '0')
+                val h = hora12.toString().padStart(2, '0')
+                horaSeleccionada = "$h:$m $amPm"
+            }
         },
         cal.get(Calendar.HOUR_OF_DAY),
         cal.get(Calendar.MINUTE),
@@ -372,9 +388,10 @@ fun DialogoReprogramarCita(
                     Text(text = "⏰ Nueva Hora: $horaSeleccionada", fontSize = 12.sp)
                 }
 
-                if (mensajeError != null) {
+                val mensajeAMostrar = errorValidacion ?: mensajeError
+                if (mensajeAMostrar != null) {
                     Text(
-                        text = mensajeError,
+                        text = mensajeAMostrar,
                         color = Color(0xFFFF5252),
                         fontSize = 11.sp
                     )
@@ -383,7 +400,11 @@ fun DialogoReprogramarCita(
         },
         confirmButton = {
             Button(
-                onClick = { onConfirmar(fechaSeleccionada, horaSeleccionada) },
+                onClick = {
+                    if (errorValidacion == null) {
+                        onConfirmar(fechaSeleccionada, horaSeleccionada)
+                    }
+                },
                 colors = ButtonDefaults.buttonColors(containerColor = CyanPrimary)
             ) {
                 Text("ENVIAR SOLICITUD", fontWeight = FontWeight.Bold, color = DarkBackground, fontSize = 11.sp)
@@ -400,6 +421,7 @@ fun DialogoReprogramarCita(
 @Composable
 private fun ItemCitaAgenda(
     cita: Cita,
+    mascota: Mascota? = null,
     esAdmin: Boolean = false,
     onReprogramar: () -> Unit = {},
     onMarcarCompletada: () -> Unit = {},
@@ -424,6 +446,9 @@ private fun ItemCitaAgenda(
         cita.especie.lowercase().contains("conejo") -> "🐰"
         else -> "🐶"
     }
+
+    val notasExpediente = mascota?.notasAdicionales?.trim().orEmpty()
+    val notasCita = cita.notas.trim()
 
     Card(
         modifier = Modifier.fillMaxWidth(),
@@ -532,13 +557,44 @@ private fun ItemCitaAgenda(
                 }
             }
 
-            if (cita.motivo.isNotBlank() || cita.notas.isNotBlank()) {
+            if (cita.motivo.isNotBlank()) {
                 Spacer(modifier = Modifier.height(10.dp))
                 Text(
-                    text = "Detalle: ${cita.motivo.ifBlank { cita.notas }}",
+                    text = "Detalle: ${cita.motivo}",
                     color = TextSecondary,
                     fontSize = 12.sp
                 )
+            }
+
+            // notas adicionales
+            if (notasExpediente.isNotBlank() || notasCita.isNotBlank()) {
+                Spacer(modifier = Modifier.height(8.dp))
+                Surface(
+                    shape = RoundedCornerShape(10.dp),
+                    color = InputBackground,
+                    border = BorderStroke(1.dp, CyanPrimary.copy(alpha = 0.3f)),
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    Column(modifier = Modifier.padding(10.dp)) {
+                        Text(
+                            text = "NOTAS CLÍNICAS / OBSERVACIONES:",
+                            color = CyanPrimary,
+                            fontSize = 10.sp,
+                            fontWeight = FontWeight.Bold
+                        )
+                        Spacer(modifier = Modifier.height(2.dp))
+                        val textoNotas = when {
+                            notasExpediente.isNotBlank() && notasCita.isNotBlank() -> "$notasExpediente • $notasCita"
+                            notasExpediente.isNotBlank() -> notasExpediente
+                            else -> notasCita
+                        }
+                        Text(
+                            text = textoNotas,
+                            color = TextWhite,
+                            fontSize = 12.sp
+                        )
+                    }
+                }
             }
 
             if (cita.motivoRechazo.isNotBlank()) {
@@ -566,7 +622,6 @@ private fun ItemCitaAgenda(
                 }
             }
 
-            // GESTIÓN ADMIN EN CITAS ACEPTADAS
             if (esAdmin && (cita.estado.uppercase() == "ACEPTADA" || cita.estado.uppercase() == "CONFIRMADA")) {
                 Spacer(modifier = Modifier.height(12.dp))
                 HorizontalDivider(color = TextSecondary.copy(alpha = 0.1f))
@@ -597,7 +652,6 @@ private fun ItemCitaAgenda(
                 }
             }
 
-            // REPROGRAMAR PARA CLIENTE
             if (!esAdmin && (cita.estado.uppercase() in listOf("RECHAZADA", "CANCELADA"))) {
                 Spacer(modifier = Modifier.height(12.dp))
                 Button(

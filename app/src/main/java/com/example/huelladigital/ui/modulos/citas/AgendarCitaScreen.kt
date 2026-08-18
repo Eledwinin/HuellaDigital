@@ -46,36 +46,47 @@ fun AgendarCitaScreen(
 
     var expandirServicios by remember { mutableStateOf(false) }
     var expandirTipoBano by remember { mutableStateOf(false) }
+    var errorValidacionLocal by remember { mutableStateOf<String?>(null) }
 
     val serviciosDisponibles = listOf("Consulta General", "Vacunación", "Baño", "Desparasitación")
 
-    // Instancia de calendario para obtener fecha/hora actual
     val calendarioActual = Calendar.getInstance()
 
-    // dialogo de calendario
     val datePickerDialog = DatePickerDialog(
         context,
         { _, anio, mes, dia ->
-            val fechaFormateada = String.format(Locale.getDefault(), "%02d/%02d/%d", dia, mes + 1, anio)
-            viewModel.onFechaChange(fechaFormateada)
+            val calElegido = Calendar.getInstance().apply { set(anio, mes, dia) }
+            if (calElegido.get(Calendar.DAY_OF_WEEK) == Calendar.SUNDAY) {
+                errorValidacionLocal = "No se agendan citas en domingo"
+            } else {
+                errorValidacionLocal = null
+                val fechaFormateada = String.format(Locale.getDefault(), "%02d/%02d/%d", dia, mes + 1, anio)
+                viewModel.onFechaChange(fechaFormateada)
+            }
         },
         calendarioActual.get(Calendar.YEAR),
         calendarioActual.get(Calendar.MONTH),
         calendarioActual.get(Calendar.DAY_OF_MONTH)
-    )
+    ).apply {
+        datePicker.minDate = System.currentTimeMillis() - 1000
+    }
 
-    // dialogo de hora
     val timePickerDialog = TimePickerDialog(
         context,
         { _, horaDelDia, minuto ->
-            val formatoAmPm = if (horaDelDia >= 12) "PM" else "AM"
-            val hora12 = if (horaDelDia % 12 == 0) 12 else horaDelDia % 12
-            val horaFormateada = String.format(Locale.getDefault(), "%02d:%02d %s", hora12, minuto, formatoAmPm)
-            viewModel.onHoraChange(horaFormateada)
+            if (horaDelDia < 7 || horaDelDia >= 18) {
+                errorValidacionLocal = "Horario disponible de 07:00 AM a 06:00 PM"
+            } else {
+                errorValidacionLocal = null
+                val formatoAmPm = if (horaDelDia >= 12) "PM" else "AM"
+                val hora12 = if (horaDelDia % 12 == 0) 12 else horaDelDia % 12
+                val horaFormateada = String.format(Locale.getDefault(), "%02d:%02d %s", hora12, minuto, formatoAmPm)
+                viewModel.onHoraChange(horaFormateada)
+            }
         },
         calendarioActual.get(Calendar.HOUR_OF_DAY),
         calendarioActual.get(Calendar.MINUTE),
-        false // Formato de 12 horas
+        false
     )
 
     Scaffold(
@@ -117,7 +128,6 @@ fun AgendarCitaScreen(
             ) {
                 Column(modifier = Modifier.padding(20.dp)) {
 
-                    // RESUMEN PACIENTE
                     Text(
                         text = "PACIENTE SELECCIONADO",
                         color = CyanPrimary,
@@ -149,7 +159,6 @@ fun AgendarCitaScreen(
 
                     Spacer(modifier = Modifier.height(18.dp))
 
-                    // SELECCIÓN DE SERVICIO
                     Text(
                         text = "SERVICIO REQUERIDO *",
                         color = CyanPrimary,
@@ -199,7 +208,6 @@ fun AgendarCitaScreen(
                         }
                     }
 
-                    // TIPO DE BAÑO (SI ES PERRO Y SELECCIONÓ BAÑO)
                     if (viewModel.esBanoPerro) {
                         Spacer(modifier = Modifier.height(18.dp))
                         Text(
@@ -254,7 +262,6 @@ fun AgendarCitaScreen(
 
                     Spacer(modifier = Modifier.height(18.dp))
 
-                    // SELECCIONAR FECHA (MUESTRA EL CALENDARIO)
                     Text(
                         text = "FECHA *",
                         color = CyanPrimary,
@@ -271,7 +278,7 @@ fun AgendarCitaScreen(
                             value = viewModel.fecha,
                             onValueChange = {},
                             readOnly = true,
-                            enabled = false, // Deshabilitado para que el clic lo reciba la caja y abra el calendario
+                            enabled = false,
                             modifier = Modifier.fillMaxWidth(),
                             placeholder = { Text("Toca para elegir fecha", color = TextSecondary.copy(alpha = 0.5f)) },
                             trailingIcon = {
@@ -293,7 +300,6 @@ fun AgendarCitaScreen(
 
                     Spacer(modifier = Modifier.height(18.dp))
 
-                    // SELECCIONAR HORA (MUESTRA EL RELOJ TIPO ALARMA)
                     Text(
                         text = "HORA *",
                         color = CyanPrimary,
@@ -310,7 +316,7 @@ fun AgendarCitaScreen(
                             value = viewModel.hora,
                             onValueChange = {},
                             readOnly = true,
-                            enabled = false, // Deshabilitado para que el clic abra el reloj desplegable
+                            enabled = false,
                             modifier = Modifier.fillMaxWidth(),
                             placeholder = { Text("Toca para elegir hora", color = TextSecondary.copy(alpha = 0.5f)) },
                             trailingIcon = {
@@ -330,26 +336,56 @@ fun AgendarCitaScreen(
                         )
                     }
 
-                    // MENSAJE DE ERROR
-                    viewModel.mensajeError?.let { err ->
+                    Spacer(modifier = Modifier.height(18.dp))
+
+                    Text(
+                        text = "NOTAS ADICIONALES / OBSERVACIONES",
+                        color = CyanPrimary,
+                        fontSize = 11.sp,
+                        fontWeight = FontWeight.Bold,
+                        letterSpacing = 0.8.sp
+                    )
+                    Spacer(modifier = Modifier.height(6.dp))
+
+                    OutlinedTextField(
+                        value = viewModel.notas,
+                        onValueChange = { viewModel.onNotasChange(it) },
+                        modifier = Modifier.fillMaxWidth(),
+                        placeholder = { Text("Ej: Alérgico a medicamentos, no le gusta que le toquen las orejas...", color = TextSecondary.copy(alpha = 0.5f), fontSize = 12.sp) },
+                        minLines = 2,
+                        maxLines = 4,
+                        shape = RoundedCornerShape(10.dp),
+                        colors = OutlinedTextFieldDefaults.colors(
+                            focusedContainerColor = InputBackground,
+                            unfocusedContainerColor = InputBackground,
+                            focusedBorderColor = CyanPrimary,
+                            unfocusedBorderColor = Color.Transparent,
+                            focusedTextColor = TextWhite,
+                            unfocusedTextColor = TextWhite
+                        )
+                    )
+
+                    val mensajeErrorMostrar = errorValidacionLocal ?: viewModel.mensajeError
+                    mensajeErrorMostrar?.let { err ->
                         Spacer(modifier = Modifier.height(10.dp))
                         Text(text = err, color = MaterialTheme.colorScheme.error, fontSize = 12.sp)
                     }
 
                     Spacer(modifier = Modifier.height(24.dp))
 
-                    // BOTÓN GUARDAR CITA
                     Button(
                         onClick = {
-                            viewModel.agendarCita(
-                                onExito = {
-                                    Toast.makeText(context, MensajesApp.CITA_PROGRAMADA_EXITO, Toast.LENGTH_SHORT).show()
-                                    onVolver()
-                                },
-                                onError = {
-                                    Toast.makeText(context, MensajesApp.CITA_PROGRAMADA_ERROR, Toast.LENGTH_SHORT).show()
-                                }
-                            )
+                            if (errorValidacionLocal == null) {
+                                viewModel.agendarCita(
+                                    onExito = {
+                                        Toast.makeText(context, MensajesApp.CITA_PROGRAMADA_EXITO, Toast.LENGTH_SHORT).show()
+                                        onVolver()
+                                    },
+                                    onError = {
+                                        Toast.makeText(context, MensajesApp.CITA_PROGRAMADA_ERROR, Toast.LENGTH_SHORT).show()
+                                    }
+                                )
+                            }
                         },
                         modifier = Modifier
                             .fillMaxWidth()

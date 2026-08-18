@@ -38,6 +38,9 @@ class AgendaDiariaViewModel(
     var misMascotas by mutableStateOf<List<Mascota>>(emptyList())
         private set
 
+    var mapaMascotas by mutableStateOf<Map<String, Mascota>>(emptyMap())
+        private set
+
     var mascotaFiltroSeleccionada by mutableStateOf<String>("TODAS")
         private set
 
@@ -98,18 +101,19 @@ class AgendaDiariaViewModel(
             val uid = userActual?.uid ?: ""
             val correo = userActual?.email?.trim()?.lowercase() ?: ""
 
+            repository.obtenerMascotas().onSuccess { listaMascotas ->
+                mapaMascotas = listaMascotas.associateBy { it.id }
+                misMascotas = listaMascotas.filter {
+                    it.usuarioId == uid || (correo.isNotBlank() && it.correoDuenio.trim().lowercase() == correo)
+                }
+            }
+
             repository.obtenerCitas().onSuccess { todasLasCitas ->
                 if (esAdmin) {
                     citasDelDia = todasLasCitas.filter { cita ->
                         normalizarFecha(cita.fecha) == normalizarFecha(fechaSeleccionadaTexto)
                     }.sortedBy { it.hora }
                 } else {
-                    repository.obtenerMascotas().onSuccess { lista ->
-                        misMascotas = lista.filter {
-                            it.usuarioId == uid || (correo.isNotBlank() && it.correoDuenio.trim().lowercase() == correo)
-                        }
-                    }
-
                     val idsMascotas = misMascotas.map { it.id }
                     todasMisCitasCliente = todasLasCitas.filter { it.mascotaId in idsMascotas }
                         .sortedByDescending { it.fecha }
@@ -125,7 +129,6 @@ class AgendaDiariaViewModel(
         val hoyStr = formatoFecha.format(Date())
         val fechaHoyDate = parsearFecha(hoyStr)
 
-        // 1. Filtrar por estado/sección
         val filtradasPorSeccion = when (filtroClienteSeleccionado) {
             "PRÓXIMAS" -> {
                 todasMisCitasCliente.filter { cita ->
@@ -153,7 +156,6 @@ class AgendaDiariaViewModel(
             else -> todasMisCitasCliente
         }
 
-        // 2. Filtrar por Mascota seleccionada
         citasDelDia = if (mascotaFiltroSeleccionada == "TODAS") {
             filtradasPorSeccion
         } else {
